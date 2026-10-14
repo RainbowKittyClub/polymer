@@ -5,6 +5,7 @@ import eu.pb4.polymer.common.impl.EventImplUtils;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.interfaces.BlockStateExtra;
+import eu.pb4.polymer.core.impl.interfaces.ServerPlayerGameModeExtra;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.mixin.block.ClientboundBlockEntityDataPacketAccessor;
 import net.fabricmc.fabric.api.event.Event;
@@ -197,6 +198,18 @@ public final class PolymerBlockUtils {
 
     public static ClientboundBlockEntityDataPacket createBlockEntityPacket(BlockPos pos, BlockEntityType<?> type, @Nullable CompoundTag nbtCompound) {
         return ClientboundBlockEntityDataPacketAccessor.createBlockEntityUpdateS2CPacket(pos.immutable(), type, nbtCompound != null ? nbtCompound : STATIC_COMPOUND);
+    }
+
+    /**
+     * Checks if player's client broke this block itself (in creative or by instant mining), so it already played its
+     * own break effects. This is only true while the START_DESTROY_BLOCK action that broke it is handled.
+     *
+     * @param player Player breaking the block
+     * @param pos    Position of the block
+     * @return true if client broke the block itself
+     */
+    public static boolean isBrokenByClient(ServerPlayer player, BlockPos pos) {
+        return ((ServerPlayerGameModeExtra) player.gameMode).polymer$isBrokenByClient(pos);
     }
 
     public static boolean shouldMineServerSide(ServerPlayer player, BlockPos pos, BlockState state) {

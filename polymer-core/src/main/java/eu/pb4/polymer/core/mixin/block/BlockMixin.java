@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.mixin.block;
 
+import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -40,8 +42,24 @@ public class BlockMixin {
     @Inject(method = "spawnDestroyParticles", at = @At("HEAD"))
     private void addPolymerParticles(Level world, Player player, BlockPos pos, BlockState state, CallbackInfo ci) {
         if (player instanceof ServerPlayer serverPlayer
-                && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state)) {
+                && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state)
+                && !polymer$playedByClient(serverPlayer, pos, state)) {
             serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state), false));
         }
+    }
+
+    @Unique
+    private static boolean polymer$playedByClient(ServerPlayer player, BlockPos pos, BlockState state) {
+        if (!PolymerBlockUtils.isBrokenByClient(player, pos)) {
+            return false;
+        }
+
+        // Client already played the effect of the block it sees, so only send it if ours differs
+        var context = player.connection.getPacketContext();
+        var breakState = state;
+        if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock) {
+            breakState = PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, context);
+        }
+        return PolymerBlockUtils.getPolymerBlockState(breakState, context) == PolymerBlockUtils.getPolymerBlockState(state, context);
     }
 }

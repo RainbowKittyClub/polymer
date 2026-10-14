@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.mixin.block;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
+import eu.pb4.polymer.core.impl.interfaces.ServerPlayerGameModeExtra;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Mixin(ServerPlayerGameMode.class)
-public abstract class ServerPlayerGameModeMixin {
+public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeExtra {
     @Final
     @Shadow
     protected ServerPlayer player;
@@ -42,6 +43,7 @@ public abstract class ServerPlayerGameModeMixin {
     @Shadow
     private int destroyProgressStart;
     @Shadow public abstract void destroyAndAck(BlockPos pos, int sequence, String reason);
+    @Shadow private int gameTicks;
 
     @Unique
     private int polymer$sequence = 0;
@@ -62,6 +64,13 @@ public abstract class ServerPlayerGameModeMixin {
     @Unique
     @Nullable
     private BlockState polymer$currentlyMinedState;
+
+    @Unique
+    private int polymer$miningFatigueClearTick = -1;
+
+    @Unique
+    @Nullable
+    private BlockPos polymer$clientBrokenPos;
 
     @Inject(method = "incrementDestroyProgress", at = @At("TAIL"))
     private void polymer_breakIfTakingTooLong(BlockState state, BlockPos pos, int i, CallbackInfoReturnable<Float> cir) {
@@ -101,6 +110,7 @@ public abstract class ServerPlayerGameModeMixin {
     @Inject(method = "handleBlockBreakAction", at = @At("HEAD"))
     private void polymer_packetReceivedInject(BlockPos pos, ServerboundPlayerActionPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         this.polymer$sequence = sequence;
+        this.polymer$clientBrokenPos = null;
         var serverState = this.player.level().getBlockState(pos);
         if (this.polymer$shouldMineServerSide(pos, serverState)) {
             if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
@@ -114,6 +124,12 @@ public abstract class ServerPlayerGameModeMixin {
                 }
 
                 float clientDelta = clientState.getDestroyProgress(this.player, this.level, pos);
+
+                // Fatigue removed this tick can't have reached the client before it sent this packet
+                var clientHasFatigue = this.polymer$hasMiningFatigue || this.polymer$miningFatigueClearTick == this.gameTicks;
+                if (this.player.getAbilities().instabuild || (clientDelta >= 1.0f && !clientHasFatigue)) {
+                    this.polymer$clientBrokenPos = pos;
+                }
 
                 if (clientDelta >= 1.0f && serverDelta < 1.0f) {
                     this.player.connection.send(new ClientboundBlockUpdatePacket(pos, serverState));
@@ -155,9 +171,19 @@ public abstract class ServerPlayerGameModeMixin {
         }
     }
 
+    @Inject(method = "handleBlockBreakAction", at = @At("RETURN"))
+    private void polymer$clearClientBrokenPos(BlockPos pos, ServerboundPlayerActionPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
+        this.polymer$clientBrokenPos = null;
+    }
+
     @Inject(method = "destroyAndAck", at = @At("HEAD"))
     private void polymer$clearEffects(BlockPos pos, int sequence, String reason, CallbackInfo ci) {
         this.polymer$clearMiningEffect();
+    }
+
+    @Override
+    public boolean polymer$isBrokenByClient(BlockPos pos) {
+        return pos.equals(this.polymer$clientBrokenPos);
     }
 
     @Unique
@@ -175,6 +201,9 @@ public abstract class ServerPlayerGameModeMixin {
 
     @Unique
     private void polymer$clearMiningEffect() {
+        if (this.polymer$hasMiningFatigue) {
+            this.polymer$miningFatigueClearTick = this.gameTicks;
+        }
         this.polymer$hasMiningFatigue = false;
         this.player.connection.send(new ClientboundUpdateAttributesPacket(this.player.getId(),
                 List.of(Objects.requireNonNull(this.player.getAttribute(Attributes.BLOCK_BREAK_SPEED)))));
