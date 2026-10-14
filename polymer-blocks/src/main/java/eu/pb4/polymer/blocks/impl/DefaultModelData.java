@@ -1006,8 +1006,8 @@ public class DefaultModelData {
             }
 
             if (block instanceof LeavesBlock) {
-                list.remove(block.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true));
-                list.remove(block.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true).setValue(LeavesBlock.WATERLOGGED, true));
+                // Placed leaves are always persistent, so a client placing real ones predicts a persistent state.
+                list.removeIf(state -> state.is(block) && state.getValue(LeavesBlock.PERSISTENT));
             } else {
                 list.remove(block.defaultBlockState());
             }
