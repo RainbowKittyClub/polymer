@@ -39,6 +39,7 @@ public final class BlockResourceCreator {
     private final BlockExtBlockMapper blockMapper;
 
     private final EnumMap<BlockModelType, BlockState> emptyBlocks = new EnumMap<>(BlockModelType.class);
+    private final BitSet takenStableSlots = new BitSet();
 
     private boolean registered = false;
     private boolean registeredEmpty = false;
@@ -141,6 +142,9 @@ public final class BlockResourceCreator {
             }
             states.remove(state);
             models.put(state, model);
+            if (state.is(Blocks.NOTE_BLOCK)) {
+                this.onNoteBlockRequested();
+            }
             this.hasRequested.add(state.getBlock());
             this.registerEvent();
 
@@ -159,6 +163,63 @@ public final class BlockResourceCreator {
             return state;
         }
         return null;
+    }
+
+    /**
+     * Number of slots {@link #requestStableBlock(int, PolymerBlockModel...)} accepts.
+     */
+    public int getStableSlotCount() {
+        return DefaultModelData.STABLE_NOTE_BLOCK_SLOTS.size();
+    }
+
+    /**
+     * Requests a full block whose client-side state no block update a vanilla client makes itself
+     * (breaking, placing, a bucket or a door next to it) turns into another model. The state depends
+     * only on the slot, never on the order of requests, and other requests never get it.
+     *
+     * @param slot from 0 to {@link #getStableSlotCount()} - 1
+     * @return the state, or null when the slot is taken or out of range
+     */
+    @Nullable
+    public BlockState requestStableBlock(int slot, PolymerBlockModel... model) {
+        return requestStableBlockImpl(slot, Either.left(model));
+    }
+
+    @Nullable
+    public BlockState requestStableBlock(int slot, MultiPolymerBlockModel model) {
+        return requestStableBlockImpl(slot, Either.right(model));
+    }
+
+    public boolean isStableSlotTaken(int slot) {
+        return this.takenStableSlots.get(slot);
+    }
+
+    @Nullable
+    private BlockState requestStableBlockImpl(int slot, Either<PolymerBlockModel[], MultiPolymerBlockModel> model) {
+        if (slot < 0 || slot >= getStableSlotCount() || this.takenStableSlots.get(slot)) {
+            return null;
+        }
+        this.takenStableSlots.set(slot);
+        var states = DefaultModelData.STABLE_NOTE_BLOCK_SLOTS.get(slot);
+        for (var state : states) {
+            this.models.put(state, model);
+        }
+        this.onNoteBlockRequested();
+        this.registerEvent();
+        return states.getFirst();
+    }
+
+    // Real note blocks all look alike, so every one is sent as the default state. A client's own
+    // updates then only move it within note 0 unpowered, which no request ever gets.
+    private void onNoteBlockRequested() {
+        if (this.hasRequested.add(Blocks.NOTE_BLOCK)) {
+            var defaultState = Blocks.NOTE_BLOCK.defaultBlockState();
+            for (var state : Blocks.NOTE_BLOCK.getStateDefinition().getPossibleStates()) {
+                if (state != defaultState) {
+                    this.blockMapper.stateMap.put(state, defaultState);
+                }
+            }
+        }
     }
 
     public int getBlocksLeft(BlockModelType type) {
