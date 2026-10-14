@@ -870,7 +870,7 @@ public class DefaultModelData {
             list.add(addSinglePoweredOpenTrapdoor(waxed, facing, half, waterlogged));
         });
 
-        list.add(addSinglePoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
+        list.add(addSingleUnpoweredOpenTrapdoor(Blocks.IRON_TRAPDOOR, facing, half, waterlogged));
     }
 
     private static BlockState addSingleOpenTrapdoor(Block block, Block replacement, Direction facing, Half half, boolean waterlogged) {
@@ -890,6 +890,14 @@ public class DefaultModelData {
     private static BlockState addSinglePoweredOpenTrapdoor(Block block, Direction facing, Half half, boolean waterlogged) {
         BlockState from = block.defaultBlockState().setValue(TrapDoorBlock.OPEN, true).setValue(TrapDoorBlock.POWERED, true).setValue(TrapDoorBlock.WATERLOGGED, waterlogged).setValue(TrapDoorBlock.FACING, facing).setValue(TrapDoorBlock.HALF, half);
         BlockState to = from.setValue(TrapDoorBlock.POWERED, false);
+        DefaultModelData.SPECIAL_REMAPS.put(from, to);
+        return from;
+    }
+
+    // For a trapdoor that only power opens: a client placing one beside power predicts it open and powered, never this.
+    private static BlockState addSingleUnpoweredOpenTrapdoor(Block block, Direction facing, Half half, boolean waterlogged) {
+        BlockState from = block.defaultBlockState().setValue(TrapDoorBlock.OPEN, true).setValue(TrapDoorBlock.POWERED, false).setValue(TrapDoorBlock.WATERLOGGED, waterlogged).setValue(TrapDoorBlock.FACING, facing).setValue(TrapDoorBlock.HALF, half);
+        BlockState to = from.setValue(TrapDoorBlock.POWERED, true);
         DefaultModelData.SPECIAL_REMAPS.put(from, to);
         return from;
     }
