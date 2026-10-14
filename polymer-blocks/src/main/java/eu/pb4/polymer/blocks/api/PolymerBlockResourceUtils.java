@@ -8,6 +8,8 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.Predicate;
+
 public final class PolymerBlockResourceUtils {
     private PolymerBlockResourceUtils() {}
 
@@ -45,6 +47,26 @@ public final class PolymerBlockResourceUtils {
             return null;
         }
         return CREATOR.requestBlock(type, model);
+    }
+
+    /**
+     * Same as {@link #requestBlock(BlockModelType, PolymerBlockModel...)}, but only takes a state
+     * the predicate accepts.
+     */
+    @Nullable
+    public static synchronized BlockState requestBlock(BlockModelType type, Predicate<BlockState> predicate, PolymerBlockModel... model) {
+        if (!CREATOR.hasRequestedEmpty(type) && CREATOR.getBlocksLeft(type) <= 1) {
+            return null;
+        }
+        return CREATOR.requestBlock(type, predicate, model);
+    }
+
+    @Nullable
+    public static synchronized BlockState requestBlock(BlockModelType type, Predicate<BlockState> predicate, MultiPolymerBlockModel model) {
+        if (!CREATOR.hasRequestedEmpty(type) && CREATOR.getBlocksLeft(type) <= 1) {
+            return null;
+        }
+        return CREATOR.requestBlock(type, predicate, model);
     }
 
     public static synchronized int getBlocksLeft(BlockModelType type) {
