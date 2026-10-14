@@ -145,6 +145,9 @@ public final class BlockResourceCreator {
             if (state.is(Blocks.NOTE_BLOCK)) {
                 this.onNoteBlockRequested();
             }
+            if (state.getBlock() instanceof LeavesBlock && !this.hasRequested.contains(state.getBlock())) {
+                this.onLeavesRequested(state.getBlock());
+            }
             this.hasRequested.add(state.getBlock());
             this.registerEvent();
 
@@ -218,6 +221,17 @@ public final class BlockResourceCreator {
                 if (state != defaultState) {
                     this.blockMapper.stateMap.put(state, defaultState);
                 }
+            }
+        }
+    }
+
+    // Natural leaves all look alike, so every one is sent as persistent at distance 7. A client then only
+    // sees persistent leaves, and placing or emptying a bucket from them keeps them persistent.
+    private void onLeavesRequested(Block block) {
+        var target = block.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+        for (var state : block.getStateDefinition().getPossibleStates()) {
+            if (!state.getValue(LeavesBlock.PERSISTENT)) {
+                this.blockMapper.stateMap.put(state, target.setValue(LeavesBlock.WATERLOGGED, state.getValue(LeavesBlock.WATERLOGGED)));
             }
         }
     }
