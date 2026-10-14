@@ -141,6 +141,9 @@ public final class BlockResourceCreator {
             }
             states.remove(state);
             models.put(state, model);
+            if (state.is(Blocks.NOTE_BLOCK)) {
+                this.onNoteBlockRequested();
+            }
             this.hasRequested.add(state.getBlock());
             this.registerEvent();
 
@@ -159,6 +162,19 @@ public final class BlockResourceCreator {
             return state;
         }
         return null;
+    }
+
+    // Real note blocks all look alike, so every one is sent as the default state. A client's own
+    // updates then only move it within note 0 unpowered, which no request ever gets.
+    private void onNoteBlockRequested() {
+        if (this.hasRequested.add(Blocks.NOTE_BLOCK)) {
+            var defaultState = Blocks.NOTE_BLOCK.defaultBlockState();
+            for (var state : Blocks.NOTE_BLOCK.getStateDefinition().getPossibleStates()) {
+                if (state != defaultState) {
+                    this.blockMapper.stateMap.put(state, defaultState);
+                }
+            }
+        }
     }
 
     public int getBlocksLeft(BlockModelType type) {

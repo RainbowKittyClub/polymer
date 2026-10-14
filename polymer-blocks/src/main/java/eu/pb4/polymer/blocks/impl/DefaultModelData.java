@@ -32,6 +32,11 @@ public class DefaultModelData {
         {
             var list = USABLE_STATES.get(BlockModelType.FULL_BLOCK);
 
+            // A client placing a real note block predicts note 0, unpowered, with the instrument its
+            // neighbours give; real ones are sent as the default state and recompute into this row too.
+            list.removeIf(state -> state.is(Blocks.NOTE_BLOCK) && state.getValue(NoteBlock.NOTE) == 0
+                    && !state.getValue(NoteBlock.POWERED));
+
             for (var pair : List.of(Blocks.BEEHIVE, Blocks.BEE_NEST)) {
                 for (var dir : Direction.Plane.HORIZONTAL) {
                     var base = pair.defaultBlockState().setValue(BeehiveBlock.FACING, dir);
