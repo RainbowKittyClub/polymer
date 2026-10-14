@@ -5,7 +5,6 @@ import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
-import eu.pb4.polymer.core.impl.interfaces.ServerPlayerGameModeExtra;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.Registry;
@@ -52,7 +51,7 @@ public class BlockMixin {
 
     @Unique
     private static boolean polymer$playedByClient(ServerPlayer player, BlockPos pos, BlockState state) {
-        if (!((ServerPlayerGameModeExtra) player.gameMode).polymer$isBrokenByClient(pos)) {
+        if (!PolymerBlockUtils.isBrokenByClient(player, pos)) {
             return false;
         }
 
