@@ -22,6 +22,14 @@ public class DefaultModelData {
     public static final Map<BlockModelType, List<BlockState>> USABLE_STATES = new EnumMap<>(BlockModelType.class);
     public static final Map<BlockState, BlockState> SPECIAL_REMAPS = new IdentityHashMap<>();
 
+    /**
+     * Note block states a client's own block updates can't turn into another model. A client
+     * recomputes a note block's instrument whenever the block above or below it changes: bass when
+     * it sits on another note block, harp over air, basedrum on stone. Each slot is the bass state
+     * followed by its harp and basedrum aliases, all drawn with one model and kept out of FULL_BLOCK.
+     */
+    public static final List<List<BlockState>> STABLE_NOTE_BLOCK_SLOTS = new ArrayList<>();
+
     private static final Predicate<BlockState> WATERLOGGED_PREDICATE = (state -> state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED));
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED)));
 
@@ -36,6 +44,13 @@ public class DefaultModelData {
             // neighbours give; real ones are sent as the default state and recompute into this row too.
             list.removeIf(state -> state.is(Blocks.NOTE_BLOCK) && state.getValue(NoteBlock.NOTE) == 0
                     && !state.getValue(NoteBlock.POWERED));
+
+            for (int note = 1; note <= 24; note++) {
+                for (var powered : bools) {
+                    addStableNoteBlockSlot(list, note, powered);
+                }
+            }
+            addStableNoteBlockSlot(list, 0, true);
 
             for (var pair : List.of(Blocks.BEEHIVE, Blocks.BEE_NEST)) {
                 for (var dir : Direction.Plane.HORIZONTAL) {
@@ -1011,6 +1026,17 @@ public class DefaultModelData {
             list.add(state);
             SPECIAL_REMAPS.put(state, state.setValue(FenceGateBlock.POWERED, false));
         }
+    }
+
+    private static void addStableNoteBlockSlot(List<BlockState> fullBlocks, int note, boolean powered) {
+        var base = Blocks.NOTE_BLOCK.defaultBlockState().setValue(NoteBlock.NOTE, note).setValue(NoteBlock.POWERED, powered);
+        var slot = List.of(
+                base.setValue(NoteBlock.INSTRUMENT, NoteBlockInstrument.BASS),
+                base.setValue(NoteBlock.INSTRUMENT, NoteBlockInstrument.HARP),
+                base.setValue(NoteBlock.INSTRUMENT, NoteBlockInstrument.BASEDRUM)
+        );
+        fullBlocks.removeAll(slot);
+        STABLE_NOTE_BLOCK_SLOTS.add(slot);
     }
 
     private static void generateDefault(BlockModelType type, Block... blocks) {
