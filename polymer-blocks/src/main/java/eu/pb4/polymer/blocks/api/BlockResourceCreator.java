@@ -176,7 +176,11 @@ public final class BlockResourceCreator {
         var multipart = new HashMap<String, List<JsonObject>>();
         var bannedStates = new HashMap<String, JsonArray>();
 
-        for (var blockStateEntry : this.models.entrySet()) {
+        // this.models iterates in identity hash order, which changes every run.
+        var sortedModels = new ArrayList<>(this.models.entrySet());
+        sortedModels.sort(Comparator.comparingInt(entry -> Block.getId(entry.getKey())));
+
+        for (var blockStateEntry : sortedModels) {
             if (!this.hasRequested.contains(blockStateEntry.getKey().getBlock())) {
                 continue;
             }
@@ -237,8 +241,6 @@ public final class BlockResourceCreator {
 
 
                 if (multipart.containsKey(key)) {
-                    multipart.get(key).forEach(multipartObject::add);
-
                     var vanillaData = builder.getDataOrSource(key);
                     if (vanillaData != null) {
                         var vanillaJson = JsonParser.parseString(new String(vanillaData, StandardCharsets.UTF_8)).getAsJsonObject();
@@ -275,6 +277,9 @@ public final class BlockResourceCreator {
                             }
                         }
                     }
+
+                    // A multipart model takes its particle from its first case, so the file's own cases go first.
+                    multipart.get(key).forEach(multipartObject::add);
                 }
 
 
