@@ -47,10 +47,13 @@ public class DefaultModelData {
 
             for (int note = 1; note <= 24; note++) {
                 for (var powered : bools) {
-                    addStableNoteBlockSlot(list, note, powered);
+                    addStableNoteBlockSlot(note, powered);
                 }
             }
-            addStableNoteBlockSlot(list, 0, true);
+            addStableNoteBlockSlot(0, true);
+            var stableStates = new HashSet<BlockState>();
+            STABLE_NOTE_BLOCK_SLOTS.forEach(stableStates::addAll);
+            list.removeIf(stableStates::contains);
 
             for (var pair : List.of(Blocks.BEEHIVE, Blocks.BEE_NEST)) {
                 for (var dir : Direction.Plane.HORIZONTAL) {
@@ -1028,15 +1031,13 @@ public class DefaultModelData {
         }
     }
 
-    private static void addStableNoteBlockSlot(List<BlockState> fullBlocks, int note, boolean powered) {
+    private static void addStableNoteBlockSlot(int note, boolean powered) {
         var base = Blocks.NOTE_BLOCK.defaultBlockState().setValue(NoteBlock.NOTE, note).setValue(NoteBlock.POWERED, powered);
-        var slot = List.of(
+        STABLE_NOTE_BLOCK_SLOTS.add(List.of(
                 base.setValue(NoteBlock.INSTRUMENT, NoteBlockInstrument.BASS),
                 base.setValue(NoteBlock.INSTRUMENT, NoteBlockInstrument.HARP),
                 base.setValue(NoteBlock.INSTRUMENT, NoteBlockInstrument.BASEDRUM)
-        );
-        fullBlocks.removeAll(slot);
-        STABLE_NOTE_BLOCK_SLOTS.add(slot);
+        ));
     }
 
     private static void generateDefault(BlockModelType type, Block... blocks) {
