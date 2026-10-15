@@ -16,6 +16,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.block.state.BlockState;
@@ -142,8 +143,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
 
                 float clientDelta = clientState.getDestroyProgress(this.player, this.level, pos);
 
-                // Fatigue removed this tick can't have reached the client before it sent this packet
-                var clientHasFatigue = this.polymer$hasMiningFatigue || this.polymer$miningFatigueClearTick == this.gameTicks;
+                var clientHasFatigue = this.polymer$hasMiningFatigue || this.polymer$isFatigueClearInFlight();
                 if (clientDelta >= 1.0f && !clientHasFatigue) {
                     this.polymer$clientBrokenPos = pos;
                 }
@@ -244,6 +244,14 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         });
         x.setBaseValue(-9999);
         this.player.connection.send(new ClientboundUpdateAttributesPacket(this.player.getId(), List.of(x)));
+    }
+
+    // The client keeps fatigue until its removal arrives, so what it sent before then can reach us up to a
+    // round trip after the removal, plus the tick the packet waits to be handled.
+    @Unique
+    private boolean polymer$isFatigueClearInFlight() {
+        return this.polymer$miningFatigueClearTick >= 0
+                && this.gameTicks - this.polymer$miningFatigueClearTick <= Mth.positiveCeilDiv(this.player.connection.latency(), 50) + 1;
     }
 
     @Unique
