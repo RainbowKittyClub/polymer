@@ -219,7 +219,9 @@ public final class BlockResourceCreator {
     }
 
     // Real note blocks all look alike, so every one is sent as the default state. A client's own
-    // updates then only move it within note 0 unpowered, which no request ever gets.
+    // updates then only move it within note 0 unpowered, which no request ever gets. On purpose, a
+    // played note block's particle then always has note 0's colour; the server sends the sound, so
+    // its pitch stays right.
     private void onNoteBlockRequested() {
         if (this.hasRequested.add(Blocks.NOTE_BLOCK)) {
             var defaultState = Blocks.NOTE_BLOCK.defaultBlockState();
