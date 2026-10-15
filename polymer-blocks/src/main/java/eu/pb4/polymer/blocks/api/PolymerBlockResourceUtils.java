@@ -19,10 +19,7 @@ public final class PolymerBlockResourceUtils {
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, PolymerBlockModel model) {
-        if (!CREATOR.hasRequestedEmpty(type) && CREATOR.getBlocksLeft(type) <= 1) {
-            return null;
-        }
-        return CREATOR.requestBlock(type, model);
+        return requestBlock(type, BlockResourceCreator.ANY_STATE, model);
     }
 
     public static synchronized BlockState requestEmpty(BlockModelType type) {
@@ -35,18 +32,12 @@ public final class PolymerBlockResourceUtils {
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
-        if (!CREATOR.hasRequestedEmpty(type) && CREATOR.getBlocksLeft(type) <= 1) {
-            return null;
-        }
-        return CREATOR.requestBlock(type, model);
+        return requestBlock(type, BlockResourceCreator.ANY_STATE, model);
     }
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, MultiPolymerBlockModel model) {
-        if (!CREATOR.hasRequestedEmpty(type) && CREATOR.getBlocksLeft(type) <= 1) {
-            return null;
-        }
-        return CREATOR.requestBlock(type, model);
+        return requestBlock(type, BlockResourceCreator.ANY_STATE, model);
     }
 
     /**
@@ -77,8 +68,9 @@ public final class PolymerBlockResourceUtils {
     }
 
     /**
-     * Requests a full block whose client-side state no block update a vanilla client makes itself
-     * turns into another model, for blocks seen and broken in large numbers, like logs and terrain.
+     * Requests a full block whose client-side state keeps its model through a vanilla client's own
+     * block updates while the block below is wood, air or stone, for blocks seen and broken in large
+     * numbers, like logs and terrain.
      * The state depends only on the slot, so callers should keep a fixed list of which block gets
      * which slot. There are few slots; fall back to {@link #requestBlock(BlockModelType, PolymerBlockModel...)}.
      *
@@ -93,10 +85,6 @@ public final class PolymerBlockResourceUtils {
     @Nullable
     public static synchronized BlockState requestStableBlock(int slot, MultiPolymerBlockModel model) {
         return CREATOR.requestStableBlock(slot, model);
-    }
-
-    public static synchronized boolean isStableSlotTaken(int slot) {
-        return CREATOR.isStableSlotTaken(slot);
     }
 
     public static synchronized int getBlocksLeft(BlockModelType type) {

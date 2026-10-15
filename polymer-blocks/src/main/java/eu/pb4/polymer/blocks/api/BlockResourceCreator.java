@@ -19,9 +19,11 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.NoteBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jspecify.annotations.Nullable;
 
@@ -31,6 +33,8 @@ import java.util.function.Predicate;
 
 public final class BlockResourceCreator {
     private static final PolymerBlockModel EMPTY = PolymerBlockModel.of(Identifier.fromNamespaceAndPath("polymer", "block/empty"));
+    // What requests without a predicate pass, so FULL_BLOCK can tell them from predicate requests.
+    static final Predicate<BlockState> ANY_STATE = x -> true;
     private final Map<BlockModelType, List<BlockState>> states;
     private final Set<Block> hasRequested = Collections.newSetFromMap(new IdentityHashMap<>());
     final Map<BlockState, Either<PolymerBlockModel[], MultiPolymerBlockModel>> models;
@@ -39,10 +43,10 @@ public final class BlockResourceCreator {
     private final BlockExtBlockMapper blockMapper;
 
     private final EnumMap<BlockModelType, BlockState> emptyBlocks = new EnumMap<>(BlockModelType.class);
-    private final BitSet takenStableSlots = new BitSet();
 
     private boolean registered = false;
     private boolean registeredEmpty = false;
+    private boolean warnedPastSnare = false;
 
     public static BlockResourceCreator of(ResourcePackCreator creator) {
         return new BlockResourceCreator(creator, new BlockExtBlockMapper(BlockMapper.createDefault()), () -> {});
@@ -107,7 +111,7 @@ public final class BlockResourceCreator {
 
     @Nullable
     public BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
-        return requestBlock(type, x -> true, model);
+        return requestBlock(type, ANY_STATE, model);
     }
 
     public BlockState requestBlock(BlockModelType type, Predicate<BlockState> predicate, PolymerBlockModel... model) {
@@ -116,7 +120,7 @@ public final class BlockResourceCreator {
 
     @Nullable
     public BlockState requestBlock(BlockModelType type, MultiPolymerBlockModel model) {
-        return requestBlock(type, x -> true, model);
+        return requestBlock(type, ANY_STATE, model);
     }
 
     public BlockState requestBlock(BlockModelType type, Predicate<BlockState> predicate, MultiPolymerBlockModel model) {
@@ -139,6 +143,11 @@ public final class BlockResourceCreator {
             }
             if (state == null) {
                 return null;
+            }
+            if (predicate == ANY_STATE && type == BlockModelType.FULL_BLOCK && !this.warnedPastSnare
+                    && !(state.is(Blocks.NOTE_BLOCK) && state.getValue(NoteBlock.INSTRUMENT) == NoteBlockInstrument.SNARE)) {
+                this.warnedPastSnare = true;
+                PolymerImpl.LOGGER.warn("FULL_BLOCK requests without a predicate have used every snare note block, so {} and later ones take states predicate requests may rely on; which block gets which now depends on load order", state);
             }
             states.remove(state);
             models.put(state, model);
@@ -176,9 +185,11 @@ public final class BlockResourceCreator {
     }
 
     /**
-     * Requests a full block whose client-side state no block update a vanilla client makes itself
-     * (breaking, placing, a bucket or a door next to it) turns into another model. The state depends
-     * only on the slot, never on the order of requests, and other requests never get it.
+     * Requests a full block whose client-side state keeps its model through a vanilla client's own
+     * block updates (breaking, placing, a bucket or a door next to it) while the block below is wood,
+     * air or stone. Over a block with another instrument, such as sand or glass, or under a mob head,
+     * it still changes. The state depends only on the slot, never on the order of requests, and
+     * other requests never get it.
      *
      * @param slot from 0 to {@link #getStableSlotCount()} - 1
      * @return the state, or null when the slot is taken or out of range
@@ -193,17 +204,15 @@ public final class BlockResourceCreator {
         return requestStableBlockImpl(slot, Either.right(model));
     }
 
-    public boolean isStableSlotTaken(int slot) {
-        return this.takenStableSlots.get(slot);
-    }
-
     @Nullable
     private BlockState requestStableBlockImpl(int slot, Either<PolymerBlockModel[], MultiPolymerBlockModel> model) {
-        if (slot < 0 || slot >= getStableSlotCount() || this.takenStableSlots.get(slot)) {
+        if (slot < 0 || slot >= getStableSlotCount()) {
             return null;
         }
-        this.takenStableSlots.set(slot);
         var states = DefaultModelData.STABLE_NOTE_BLOCK_SLOTS.get(slot);
+        if (this.models.containsKey(states.getFirst())) {
+            return null;
+        }
         for (var state : states) {
             this.models.put(state, model);
         }
