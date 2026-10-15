@@ -39,7 +39,6 @@ public final class BlockResourceCreator {
     private final BlockExtBlockMapper blockMapper;
 
     private final EnumMap<BlockModelType, BlockState> emptyBlocks = new EnumMap<>(BlockModelType.class);
-    private final BitSet takenStableSlots = new BitSet();
 
     private boolean registered = false;
     private boolean registeredEmpty = false;
@@ -190,17 +189,15 @@ public final class BlockResourceCreator {
         return requestStableBlockImpl(slot, Either.right(model));
     }
 
-    public boolean isStableSlotTaken(int slot) {
-        return this.takenStableSlots.get(slot);
-    }
-
     @Nullable
     private BlockState requestStableBlockImpl(int slot, Either<PolymerBlockModel[], MultiPolymerBlockModel> model) {
-        if (slot < 0 || slot >= getStableSlotCount() || this.takenStableSlots.get(slot)) {
+        if (slot < 0 || slot >= getStableSlotCount()) {
             return null;
         }
-        this.takenStableSlots.set(slot);
         var states = DefaultModelData.STABLE_NOTE_BLOCK_SLOTS.get(slot);
+        if (this.models.containsKey(states.getFirst())) {
+            return null;
+        }
         for (var state : states) {
             this.models.put(state, model);
         }
