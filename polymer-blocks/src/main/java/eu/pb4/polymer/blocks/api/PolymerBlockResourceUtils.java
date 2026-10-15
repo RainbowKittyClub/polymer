@@ -19,7 +19,7 @@ public final class PolymerBlockResourceUtils {
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, PolymerBlockModel model) {
-        return requestBlock(type, x -> true, model);
+        return requestBlock(type, BlockResourceCreator.ANY_STATE, model);
     }
 
     public static synchronized BlockState requestEmpty(BlockModelType type) {
@@ -32,12 +32,12 @@ public final class PolymerBlockResourceUtils {
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, PolymerBlockModel... model) {
-        return requestBlock(type, x -> true, model);
+        return requestBlock(type, BlockResourceCreator.ANY_STATE, model);
     }
 
     @Nullable
     public static synchronized BlockState requestBlock(BlockModelType type, MultiPolymerBlockModel model) {
-        return requestBlock(type, x -> true, model);
+        return requestBlock(type, BlockResourceCreator.ANY_STATE, model);
     }
 
     /**
