@@ -22,10 +22,11 @@ public class DefaultModelData {
     public static final Map<BlockState, BlockState> SPECIAL_REMAPS = new IdentityHashMap<>();
 
     /**
-     * Note block states a client's own block updates can't turn into another model. A client
-     * recomputes a note block's instrument whenever the block above or below it changes: bass when
-     * it sits on another note block, harp over air, basedrum on stone. Each slot is the bass state
-     * followed by its harp and basedrum aliases, all drawn with one model and kept out of FULL_BLOCK.
+     * Note block states that keep their model through a client's own block updates while the block
+     * below is wood, air or stone. A client recomputes a note block's instrument whenever the block
+     * above or below it changes: bass on wood, other note blocks included, harp over air, basedrum on
+     * stone. Each slot is the bass state followed by its harp and basedrum aliases, all drawn with one
+     * model and kept out of FULL_BLOCK. Another instrument below or a mob head above still changes it.
      */
     public static final List<List<BlockState>> STABLE_NOTE_BLOCK_SLOTS = new ArrayList<>();
 

@@ -68,8 +68,9 @@ public final class PolymerBlockResourceUtils {
     }
 
     /**
-     * Requests a full block whose client-side state no block update a vanilla client makes itself
-     * turns into another model, for blocks seen and broken in large numbers, like logs and terrain.
+     * Requests a full block whose client-side state keeps its model through a vanilla client's own
+     * block updates while the block below is wood, air or stone, for blocks seen and broken in large
+     * numbers, like logs and terrain.
      * The state depends only on the slot, so callers should keep a fixed list of which block gets
      * which slot. There are few slots; fall back to {@link #requestBlock(BlockModelType, PolymerBlockModel...)}.
      *
