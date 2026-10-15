@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Either;
 import eu.pb4.polymer.blocks.impl.BlockExtBlockMapper;
 import eu.pb4.polymer.blocks.impl.DefaultModelData;
+import eu.pb4.polymer.blocks.impl.MultipartModelMerger;
 import eu.pb4.polymer.blocks.impl.PolymerBlocksInternal;
 import eu.pb4.polymer.blocks.impl.VanillaBlockPropertiesPredicate;
 import eu.pb4.polymer.common.impl.CompatStatus;
@@ -208,6 +209,9 @@ public final class BlockResourceCreator {
                 var stateName = PolymerBlocksInternal.generateStateName(state);
                 var array = PolymerBlocksInternal.createJsonElement(models.left().orElseThrow());
                 variants.computeIfAbsent(path, (s) -> new HashMap<>()).put(stateName, array);
+            } else if (MultipartModelMerger.merge(builder, models.right().orElseThrow()) instanceof PolymerBlockModel[] merged) {
+                var stateName = PolymerBlocksInternal.generateStateName(state);
+                variants.computeIfAbsent(path, (s) -> new HashMap<>()).put(stateName, PolymerBlocksInternal.createJsonElement(merged));
             } else {
                 for (var x : models.right().orElseThrow().models()) {
                     var mult = new JsonObject();
