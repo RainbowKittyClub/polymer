@@ -95,10 +95,6 @@ public final class PolymerBlockResourceUtils {
         return CREATOR.requestStableBlock(slot, model);
     }
 
-    public static synchronized boolean isStableSlotTaken(int slot) {
-        return CREATOR.isStableSlotTaken(slot);
-    }
-
     public static synchronized int getBlocksLeft(BlockModelType type) {
         if (CREATOR.hasRequestedEmpty(type)) {
             return CREATOR.getBlocksLeft(type);
