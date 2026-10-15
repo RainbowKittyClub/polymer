@@ -172,9 +172,11 @@ public final class BlockResourceCreator {
     }
 
     /**
-     * Requests a full block whose client-side state no block update a vanilla client makes itself
-     * (breaking, placing, a bucket or a door next to it) turns into another model. The state depends
-     * only on the slot, never on the order of requests, and other requests never get it.
+     * Requests a full block whose client-side state keeps its model through a vanilla client's own
+     * block updates (breaking, placing, a bucket or a door next to it) while the block below is wood,
+     * air or stone. Over a block with another instrument, such as sand or glass, or under a mob head,
+     * it still changes. The state depends only on the slot, never on the order of requests, and
+     * other requests never get it.
      *
      * @param slot from 0 to {@link #getStableSlotCount()} - 1
      * @return the state, or null when the slot is taken or out of range
