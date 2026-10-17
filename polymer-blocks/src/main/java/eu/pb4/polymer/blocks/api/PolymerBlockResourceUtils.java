@@ -87,6 +87,11 @@ public final class PolymerBlockResourceUtils {
         return CREATOR.requestStableBlock(slot, model);
     }
 
+    /** True when this state was handed out for an empty model, so the client draws nothing for it. */
+    public static synchronized boolean isEmptyState(BlockState state) {
+        return CREATOR.isEmptyModel(state);
+    }
+
     public static synchronized int getBlocksLeft(BlockModelType type) {
         if (CREATOR.hasRequestedEmpty(type)) {
             return CREATOR.getBlocksLeft(type);
