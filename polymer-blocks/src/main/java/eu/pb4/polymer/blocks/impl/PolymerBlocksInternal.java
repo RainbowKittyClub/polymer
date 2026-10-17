@@ -8,6 +8,7 @@ import eu.pb4.polymer.blocks.api.MultiPolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.common.impl.CommonImplUtils;
+import eu.pb4.polymer.core.api.item.PolymerBlockItemStandIns;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.ChatFormatting;
@@ -20,6 +21,7 @@ import net.minecraft.server.dialog.CommonDialogData;
 import net.minecraft.server.dialog.DialogAction;
 import net.minecraft.server.dialog.NoticeDialog;
 import net.minecraft.server.dialog.body.PlainMessage;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import java.util.*;
@@ -70,6 +72,9 @@ public class PolymerBlocksInternal implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        // Resolved on first use, so the creator keeps its own initialisation order.
+        PolymerBlockItemStandIns.registerInvisibleState(state -> PolymerBlockResourceUtils.isEmptyState(state));
+        PolymerBlockItemStandIns.registerUnstableState(state -> state.is(Blocks.NOTE_BLOCK) && !DefaultModelData.isStableSlotState(state));
         CommonImplUtils.registerCommands(c -> c.then(literal("blocks_module_state_report")
                 .requires(CommonImplUtils.permission("blocks_module_state_report", 3))
                 .executes(ctx -> {
