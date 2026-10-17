@@ -12,6 +12,7 @@ import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
+import eu.pb4.polymer.core.impl.other.ClientBlockClick;
 import eu.pb4.polymer.core.mixin.StaticAccessor;
 import eu.pb4.polymer.core.mixin.block.packet.ServerMapAccessor;
 import eu.pb4.polymer.core.mixin.entity.ServerLevelAccessor;
@@ -60,6 +61,14 @@ public final class PolymerUtils {
 
     public static Collection<FeatureFlag> getClientEnabledFeatureFlags() {
         return ENABLED_FEATURE_FLAGS;
+    }
+
+    /**
+     * True while the entity a sound leaves out is final, because the client's own prediction of the
+     * current block interaction decided it; no lift of the exclusion applies then.
+     */
+    public static boolean isPlaySoundExclusionFinal() {
+        return ClientBlockClick.isExclusionFinal();
     }
 
     public static ScopedOverride ignorePlaySoundExclusion() {
