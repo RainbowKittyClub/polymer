@@ -1,6 +1,7 @@
 package eu.pb4.polymer.soundpatcher.impl;
 
 import eu.pb4.polymer.common.api.ScopedOverride;
+import eu.pb4.polymer.common.impl.CompatStatus;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Unit;
@@ -16,6 +17,12 @@ public class SoundRemapperImpl {
     private static boolean ignored = true;
     private static final Map<Identifier, Identifier> REMAPPED_SOUND_IDS = new HashMap<>();
     public static final Set<Identifier> SOUND_EXCEPTION_IGNORER = new HashSet<>();
+
+    static {
+        if (CompatStatus.POLYMER_CORE) {
+            CoreBridge.registerMutedPlaceSounds();
+        }
+    }
 
     public static SoundEvent remap(SoundEvent event) {
         if (ignored) {
@@ -38,6 +45,11 @@ public class SoundRemapperImpl {
         REMAPPED_SOUND_IDS.put(from, to);
         SOUND_EXCEPTION_IGNORER.add(from);
         return true;
+    }
+
+    /** True once a mod converted this vanilla sound, so the pack mutes the client's own copy. */
+    public static boolean isConverted(SoundEvent event) {
+        return !ignored && REMAPPED_SOUND_IDS.containsKey(event.location());
     }
 
     public static void enable() {
