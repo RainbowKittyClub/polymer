@@ -165,10 +165,14 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
 
         var original = operation.call(instance, player, world, stack, hand, hitResult);
         soundOverride.close();
-        var placed = ClientBlockClick.placedAt() != null;
+        var placedAt = ClientBlockClick.placedAt();
+        var placed = placedAt != null;
         clickScope.close();
 
         if (click != null) {
+            if (placed && click.outcome() == ClientBlockClick.Outcome.PLACED) {
+                ClientBlockClick.healColumn(this.player, placedAt);
+            }
             // A placement the client did not predict, or any success after its block took the click silently, needs the
             // server's swing and the result kept for the client's other packets; swung here once, as handleUseItemOn would swing twice.
             if ((placed && click.passed() || click.silentlyConsumed()) && original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.CLIENT) {
