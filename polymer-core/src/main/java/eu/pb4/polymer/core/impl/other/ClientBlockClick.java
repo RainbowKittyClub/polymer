@@ -8,6 +8,7 @@ import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.mixin.block.TrapDoorBlockAccessor;
+import eu.pb4.polymer.core.impl.networking.BlockPacketUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -191,6 +192,24 @@ public final class ClientBlockClick {
         var pos = PLACED_AT.get();
         PLACED_AT.remove();
         return pos;
+    }
+
+    /**
+     * Resends the column of note-block stand-ins above and below a block the client placed itself.
+     * A client's own placement recomputes a note block's instrument from the block under it
+     * (NoteBlock.updateShape), which turns an unstable stand-in into another model; the server's
+     * state puts it right within a round trip.
+     */
+    public static void healColumn(ServerPlayer player, BlockPos placed) {
+        var level = player.level();
+        var context = player.connection.getPacketContext();
+        for (var direction : new Direction[]{Direction.UP, Direction.DOWN}) {
+            var pos = placed.relative(direction);
+            while (PolymerBlockUtils.getPolymerBlockState(level.getBlockState(pos), context).is(Blocks.NOTE_BLOCK)) {
+                BlockPacketUtil.sendUpdate(player, pos);
+                pos = pos.relative(direction);
+            }
+        }
     }
 
     public Outcome outcome() {
