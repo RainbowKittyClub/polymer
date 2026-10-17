@@ -17,6 +17,7 @@ import eu.pb4.polymer.core.impl.interfaces.LastActionResultStorer;
 import eu.pb4.polymer.core.impl.networking.BlockPacketUtil;
 import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.other.ActionSource;
+import eu.pb4.polymer.core.impl.other.ClientBlockClick;
 import eu.pb4.polymer.core.mixin.entity.LivingEntityAccessor;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -149,8 +150,14 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
     private InteractionResult captureBlockInteraction(ServerPlayerGameMode instance, ServerPlayer player, Level world, ItemStack stack, InteractionHand hand, BlockHitResult hitResult, Operation<InteractionResult> operation, @Local ServerLevel serverWorld) {
         var oldState = this.player.level().getBlockState(hitResult.getBlockPos());
 
+        // A block item's click: what the client did decides the place sound (BlockItemMixin) and the swing.
+        var click = ClientBlockClick.predict(this.player, stack, hand, oldState, hitResult);
+        var clickScope = click != null ? click.enter() : ScopedOverride.NO_OP;
         ScopedOverride soundOverride;
-        if (PolymerBlockUtils.isIgnoringPlaySoundExceptedEntity(this.player, stack, hand, oldState, hitResult, serverWorld)) {
+        if (click != null && click.outcome() == ClientBlockClick.Outcome.CONSUMED) {
+            // The client ran this interaction on the same block, sounds included.
+            soundOverride = ScopedOverride.NO_OP;
+        } else if (PolymerBlockUtils.isIgnoringPlaySoundExceptedEntity(this.player, stack, hand, oldState, hitResult, serverWorld)) {
             soundOverride = PolymerUtils.ignorePlaySoundExclusion();
         } else {
             soundOverride = ScopedOverride.NO_OP;
@@ -158,6 +165,27 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
 
         var original = operation.call(instance, player, world, stack, hand, hitResult);
         soundOverride.close();
+        var placedAt = ClientBlockClick.placedAt();
+        var placed = placedAt != null;
+        clickScope.close();
+
+        if (click != null) {
+            if (placed && click.outcome() == ClientBlockClick.Outcome.PLACED) {
+                ClientBlockClick.healColumn(this.player, placedAt);
+            }
+            // A placement the client did not predict, or any success after its block took the click silently, needs the
+            // server's swing and the result kept for the client's other packets; swung here once, as handleUseItemOn would swing twice.
+            if ((placed && click.passed() || click.silentlyConsumed()) && original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.CLIENT) {
+                this.player.swing(hand, true);
+                this.lastActionResult = original;
+                this.lastActionSource = ActionSource.BLOCK;
+                this.lastActionPos = hitResult;
+                return original;
+            }
+            if (placed || click.outcome() == ClientBlockClick.Outcome.CONSUMED) {
+                return original;
+            }
+        }
 
         if (this.forcePolymerInteraction || PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState, hitResult, serverWorld, original)) {
             if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.CLIENT) {

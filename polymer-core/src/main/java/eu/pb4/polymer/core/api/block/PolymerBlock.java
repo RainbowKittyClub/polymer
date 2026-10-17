@@ -31,6 +31,19 @@ public interface PolymerBlock extends PolymerSyncedObject<Block> {
     BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context);
 
     /**
+     * The state this player's client holds at this position. Override it when the block sends some players
+     * their own states outside {@link #getPolymerBlockState}; Polymer reads it to tell what a click on it did on the client.
+     *
+     * @param state  Server side BlockState
+     * @param pos    Position of the block
+     * @param player Player whose client is asked about
+     * @return Client side BlockState
+     */
+    default BlockState getPolymerBlockStateAt(BlockState state, BlockPos pos, ServerPlayer player) {
+        return PolymerBlockUtils.getPolymerBlockState(state, player.connection.getPacketContext());
+    }
+
+    /**
      * This method is called when block gets send to player
      * Allows to add client-only BlockEntities (for signs, heads, etc)
      *

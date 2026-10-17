@@ -22,6 +22,10 @@ import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 public abstract class BlockItemMixin {
     @WrapOperation(method = "place(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/InteractionResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;playSound(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FF)V"))
     private void wrapPlaySound(Level instance, Entity source, BlockPos pos, SoundEvent sound, SoundSource category, float volume, float pitch, Operation<Void> original, @Local(ordinal = 1) BlockState state) {
+        if (CoreBridge.isSoundExclusionFinal()) {
+            original.call(instance, source, pos, sound, category, volume, pitch);
+            return;
+        }
         original.call(instance,
                 SoundRemapperImpl.ignoreExceptions(CoreBridge.getClientSideSoundGroup(state, source).getPlaceSound()) ? null : source,
                 pos, sound, category, volume, pitch);
