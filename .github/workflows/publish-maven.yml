@@ -1,0 +1,51 @@
+name: Publish Maven package
+
+# RKC fork only: a v<mod_version>-rkc.<n>+<minecraft_version> tag publishes every module to this
+# repository's GitHub Packages as <mod_version>-rkc.<n>+<minecraft_version>. No GitHub release,
+# Modrinth or CurseForge upload; release.yml stays upstream's.
+on:
+  push:
+    tags:
+      - "v*-rkc.*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Check the tag against gradle.properties
+        run: |
+          prop() {
+            sed -nE "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*([^[:space:]]+)[[:space:]]*$/\1/p" gradle.properties | head -n1
+          }
+          mod_version="$(prop mod_version)"
+          minecraft_version="$(prop minecraft_version)"
+          tag_version="${GITHUB_REF_NAME#v}"
+          pattern="^${mod_version//./\\.}-rkc\.[0-9]+\+${minecraft_version//./\\.}$"
+          if ! [[ "$tag_version" =~ $pattern ]]; then
+            echo "Tag ${GITHUB_REF_NAME} must be v${mod_version}-rkc.<n>+${minecraft_version}" >&2
+            exit 1
+          fi
+          # build.gradle appends +<minecraft_version> itself.
+          echo "FORK_MOD_VERSION=${tag_version%+*}" >> "$GITHUB_ENV"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: gradle
+
+      - name: Build and publish
+        run: ./gradlew --no-daemon build publish -Pmod_version="${FORK_MOD_VERSION}"
+        env:
+          MAVEN_URL: https://maven.pkg.github.com/${{ github.repository }}
+          MAVEN_USERNAME: ${{ github.actor }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
