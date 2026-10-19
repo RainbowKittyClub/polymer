@@ -82,7 +82,7 @@ public class PolymerCommandsImpl {
                 )
                 .then(literal("block-items")
                         .requires(CommonImplUtils.permission("command.block-items", 3))
-                        .executes(Commands::dumpBlockItems)
+                        .executes(PolymerCommandsImpl::dumpBlockItems)
                 )
                 .then(literal("export-registry")
                         .requires(CommonImplUtils.permission("command/export-registry", 3))
