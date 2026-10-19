@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImpl;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.interfaces.ServerPlayerGameModeExtra;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,6 +16,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +36,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Mixin(ServerPlayerGameMode.class)
-public abstract class ServerPlayerGameModeMixin {
+public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeExtra {
     @Final
     @Shadow
     protected ServerPlayer player;
@@ -71,6 +73,13 @@ public abstract class ServerPlayerGameModeMixin {
     @Unique
     @Nullable
     private BlockState polymer$currentlyMinedState;
+
+    @Unique
+    private int polymer$miningFatigueClearTick = -1;
+
+    @Unique
+    @Nullable
+    private BlockPos polymer$clientBrokenPos;
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayerGameMode;incrementDestroyProgress(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;I)F", ordinal = 0))
     private int polymer$fixBrokenVanillaTickCountMojangPlsFix(int tickCount) {
@@ -115,6 +124,11 @@ public abstract class ServerPlayerGameModeMixin {
     @Inject(method = "handleBlockBreakAction", at = @At("HEAD"))
     private void polymer_packetReceivedInject(BlockPos pos, ServerboundPlayerActionPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         this.polymer$sequence = sequence;
+        this.polymer$clientBrokenPos = null;
+        // Creative is never mined server side, so its client always breaks the block and plays the effects itself
+        if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK && this.player.getAbilities().instabuild) {
+            this.polymer$clientBrokenPos = pos;
+        }
         var serverState = this.player.level().getBlockState(pos);
         if (this.polymer$shouldMineServerSide(pos, serverState)) {
             if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
@@ -128,6 +142,11 @@ public abstract class ServerPlayerGameModeMixin {
                 }
 
                 float clientDelta = clientState.getDestroyProgress(this.player, this.level, pos);
+
+                var clientHasFatigue = this.polymer$hasMiningFatigue || this.polymer$isFatigueClearInFlight();
+                if (clientDelta >= 1.0f && !clientHasFatigue) {
+                    this.polymer$clientBrokenPos = pos;
+                }
 
                 if (clientDelta >= 1.0f && serverDelta < 1.0f) {
                     this.player.connection.send(new ClientboundBlockUpdatePacket(pos, serverState));
@@ -169,6 +188,11 @@ public abstract class ServerPlayerGameModeMixin {
         }
     }
 
+    @Inject(method = "handleBlockBreakAction", at = @At("RETURN"))
+    private void polymer$clearClientBrokenPos(BlockPos pos, ServerboundPlayerActionPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
+        this.polymer$clientBrokenPos = null;
+    }
+
     @Inject(method = "destroyAndAck", at = @At("HEAD"))
     private void polymer$clearEffects(BlockPos pos, int sequence, String reason, CallbackInfo ci) {
         if (!PolymerImpl.PREDICTIVE_SERVER_MINING || !polymer$shouldMineServerSidePredictive()) {
@@ -199,6 +223,11 @@ public abstract class ServerPlayerGameModeMixin {
         return this.polymer$shouldMineServerSide(cast.getBlockPos(), this.level.getBlockState(cast.getBlockPos()));
     }
 
+    @Override
+    public boolean polymer$isBrokenByClient(BlockPos pos) {
+        return pos.equals(this.polymer$clientBrokenPos);
+    }
+
     @Unique
     private boolean polymer$shouldMineServerSide(BlockPos pos, BlockState state) {
         if (this.player.getAbilities().instabuild) {
@@ -217,8 +246,19 @@ public abstract class ServerPlayerGameModeMixin {
         this.player.connection.send(new ClientboundUpdateAttributesPacket(this.player.getId(), List.of(x)));
     }
 
+    // The client keeps fatigue until its removal arrives, so what it sent before then can reach us up to a
+    // round trip after the removal, plus the tick the packet waits to be handled.
+    @Unique
+    private boolean polymer$isFatigueClearInFlight() {
+        return this.polymer$miningFatigueClearTick >= 0
+                && this.gameTicks - this.polymer$miningFatigueClearTick <= Mth.positiveCeilDiv(this.player.connection.latency(), 50) + 1;
+    }
+
     @Unique
     private void polymer$clearMiningEffect() {
+        if (this.polymer$hasMiningFatigue) {
+            this.polymer$miningFatigueClearTick = this.gameTicks;
+        }
         this.polymer$hasMiningFatigue = false;
         this.player.connection.send(new ClientboundUpdateAttributesPacket(this.player.getId(),
                 List.of(Objects.requireNonNull(this.player.getAttribute(Attributes.BLOCK_BREAK_SPEED)))));
