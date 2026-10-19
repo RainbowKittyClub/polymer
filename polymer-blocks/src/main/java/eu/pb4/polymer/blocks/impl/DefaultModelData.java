@@ -30,6 +30,7 @@ public class DefaultModelData {
      * model and kept out of FULL_BLOCK. Another instrument below or a mob head above still changes it.
      */
     public static final List<List<BlockState>> STABLE_NOTE_BLOCK_SLOTS = new ArrayList<>();
+    private static final Set<BlockState> STABLE_SLOT_STATES = new HashSet<>();
 
     private static final Predicate<BlockState> WATERLOGGED_PREDICATE = (state -> state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED));
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED)));
@@ -52,9 +53,8 @@ public class DefaultModelData {
                 }
             }
             addStableNoteBlockSlot(0, true);
-            var stableStates = new HashSet<BlockState>();
-            STABLE_NOTE_BLOCK_SLOTS.forEach(stableStates::addAll);
-            list.removeIf(stableStates::contains);
+            STABLE_NOTE_BLOCK_SLOTS.forEach(STABLE_SLOT_STATES::addAll);
+            list.removeIf(STABLE_SLOT_STATES::contains);
 
             for (var pair : List.of(Blocks.BEEHIVE, Blocks.BEE_NEST)) {
                 for (var dir : Direction.Plane.HORIZONTAL) {
@@ -1072,4 +1072,10 @@ public class DefaultModelData {
             }
         }
     }
+
+    /** True when this state belongs to one of the stable note block slots. */
+    public static boolean isStableSlotState(BlockState state) {
+        return STABLE_SLOT_STATES.contains(state);
+    }
+
 }

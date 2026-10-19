@@ -80,6 +80,10 @@ public class PolymerCommandsImpl {
                         .executes(PolymerCommandsImpl::displayClientItem)
                         .then(literal("get").executes(PolymerCommandsImpl::getClientItem))
                 )
+                .then(literal("block-items")
+                        .requires(CommonImplUtils.permission("command.block-items", 3))
+                        .executes(Commands::dumpBlockItems)
+                )
                 .then(literal("export-registry")
                         .requires(CommonImplUtils.permission("command/export-registry", 3))
                         .executes(PolymerCommandsImpl::dumpRegistries)
@@ -401,6 +405,19 @@ public class PolymerCommandsImpl {
         ), false);
 
         return 1;
+    }
+
+    private static int dumpBlockItems(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayerOrException();
+        try {
+            var path = BlockItemStandInDump.write(player);
+            context.getSource().sendSuccess(() -> Component.literal("Wrote block item stand-ins for " + player.getGameProfile().name() + " to " + path), false);
+            return 1;
+        } catch (Exception e) {
+            PolymerImpl.LOGGER.error("Failed to write block item stand-ins", e);
+            context.getSource().sendFailure(Component.literal("Couldn't write block item stand-ins: " + e.getMessage()));
+            return 0;
+        }
     }
 
     private static int getClientItem(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

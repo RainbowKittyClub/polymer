@@ -254,6 +254,12 @@ public final class BlockResourceCreator {
         return this.states.get(type).size();
     }
 
+    /** True when this state was handed out through {@link #requestEmpty}, so it draws nothing. */
+    public boolean isEmptyModel(BlockState state) {
+        var model = this.models.get(state);
+        return model != null && model.left().filter(models -> models.length == 1 && EMPTY.equals(models[0])).isPresent();
+    }
+
     public boolean hasRequestedEmpty(BlockModelType type) {
         return this.emptyBlocks.containsKey(type);
     }
