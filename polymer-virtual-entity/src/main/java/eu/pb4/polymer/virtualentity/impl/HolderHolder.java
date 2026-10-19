@@ -12,4 +12,7 @@ public interface HolderHolder {
     void polymer$addHolder(ElementHolder holder);
     void polymer$removeHolder(ElementHolder holder);
     Collection<ElementHolder> polymer$getHolders();
+
+    /** Queues a watched holder whose attachment was removed, to be dropped at the end of the tick. */
+    void polymer$markDetached(ElementHolder holder);
 }

@@ -228,6 +228,9 @@ public class ElementHolder {
             attachment.updateCurrentlyTracking(new ArrayList<>(this.players));
             this.onAttachmentSet(attachment, oldAttachment);
         } else if (oldAttachment != null) {
+            for (var player : this.players) {
+                ((HolderHolder) player).polymer$markDetached(this);
+            }
             this.onAttachmentRemoved(oldAttachment);
         }
     }
