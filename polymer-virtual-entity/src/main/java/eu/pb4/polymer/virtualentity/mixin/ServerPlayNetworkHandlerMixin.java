@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemFromEntityPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,6 +27,9 @@ import net.minecraft.world.entity.Entity;
 public class ServerPlayNetworkHandlerMixin implements HolderHolder {
     @Unique
     private final ArrayList<ElementHolder> polymerVE$holders = new ArrayList<>();
+    // What polymer$getHolders() hands out: a write through it would bypass polymerVE$holderIndex.
+    @Unique
+    private final Collection<ElementHolder> polymerVE$holdersView = Collections.unmodifiableList(this.polymerVE$holders);
     // Each holder's slot in polymerVE$holders, so a remove swaps the last one in instead of shifting.
     @Unique
     private final Reference2IntOpenHashMap<ElementHolder> polymerVE$holderIndex = new Reference2IntOpenHashMap<>();
@@ -64,7 +68,7 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
 
     @Override
     public Collection<ElementHolder> polymer$getHolders() {
-        return this.polymerVE$holders;
+        return this.polymerVE$holdersView;
     }
 
     @Override
