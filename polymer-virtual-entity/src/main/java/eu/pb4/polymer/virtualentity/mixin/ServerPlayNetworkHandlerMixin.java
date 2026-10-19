@@ -3,6 +3,8 @@ package eu.pb4.polymer.virtualentity.mixin;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.network.protocol.game.ServerboundAttackPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,18 +25,41 @@ import net.minecraft.world.entity.Entity;
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ServerPlayNetworkHandlerMixin implements HolderHolder {
     @Unique
-    private final Collection<ElementHolder> polymerVE$holders = new ArrayList<>();
+    private final ArrayList<ElementHolder> polymerVE$holders = new ArrayList<>();
+    // Each holder's slot in polymerVE$holders, so a remove swaps the last one in instead of shifting.
+    @Unique
+    private final Reference2IntOpenHashMap<ElementHolder> polymerVE$holderIndex = new Reference2IntOpenHashMap<>();
+    // Watched holders without an attachment, from setAttachment(null) or watching while unset; the
+    // tick checks these instead of every holder. A getAttachment() override alone is not seen.
+    @Unique
+    private final ReferenceOpenHashSet<ElementHolder> polymerVE$detached = new ReferenceOpenHashSet<>();
     @Shadow
     public ServerPlayer player;
 
     @Override
     public void polymer$addHolder(ElementHolder holderAttachment) {
+        if (this.polymerVE$holderIndex.containsKey(holderAttachment)) {
+            return;
+        }
+        this.polymerVE$holderIndex.put(holderAttachment, this.polymerVE$holders.size());
         this.polymerVE$holders.add(holderAttachment);
+        if (holderAttachment.getAttachment() == null) {
+            this.polymerVE$detached.add(holderAttachment);
+        }
     }
 
     @Override
     public void polymer$removeHolder(ElementHolder holderAttachment) {
-        this.polymerVE$holders.remove(holderAttachment);
+        if (!this.polymerVE$holderIndex.containsKey(holderAttachment)) {
+            return;
+        }
+        var index = this.polymerVE$holderIndex.removeInt(holderAttachment);
+        var last = this.polymerVE$holders.remove(this.polymerVE$holders.size() - 1);
+        if (index < this.polymerVE$holders.size()) {
+            this.polymerVE$holders.set(index, last);
+            this.polymerVE$holderIndex.put(last, index);
+        }
+        this.polymerVE$detached.remove(holderAttachment);
     }
 
     @Override
@@ -42,15 +67,31 @@ public class ServerPlayNetworkHandlerMixin implements HolderHolder {
         return this.polymerVE$holders;
     }
 
+    @Override
+    public void polymer$markDetached(ElementHolder holder) {
+        if (this.polymerVE$holderIndex.containsKey(holder)) {
+            this.polymerVE$detached.add(holder);
+        }
+    }
+
     @Inject(method = "tick", at = @At("TAIL"))
     private void polymerVE$tick(CallbackInfo ci) {
-        try {
-            for (var holder : new ArrayList<>(this.polymerVE$holders)) {
+        if (this.polymerVE$detached.isEmpty()) {
+            return;
+        }
+        var detached = this.polymerVE$detached.toArray(ELEMENT_HOLDERS);
+        this.polymerVE$detached.clear();
+        for (var holder : detached) {
+            try {
                 if (holder.getAttachment() == null) {
                     holder.stopWatching(this.player);
                 }
+            } catch (Throwable e) {
             }
-        } catch (Throwable e) {
+            // Still watched and still unattached: try again next tick, as the old full walk did.
+            if (holder.getAttachment() == null && this.polymerVE$holderIndex.containsKey(holder)) {
+                this.polymerVE$detached.add(holder);
+            }
         }
     }
     @ModifyVariable(method = "handlePickItemFromEntity", at = @At(value = "STORE", ordinal = 0))
