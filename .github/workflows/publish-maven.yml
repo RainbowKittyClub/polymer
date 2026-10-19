@@ -27,6 +27,10 @@ jobs:
           }
           mod_version="$(prop mod_version)"
           minecraft_version="$(prop minecraft_version)"
+          if [ -z "$mod_version" ] || [ -z "$minecraft_version" ]; then
+            echo "gradle.properties lacks mod_version or minecraft_version" >&2
+            exit 1
+          fi
           tag_version="${GITHUB_REF_NAME#v}"
           pattern="^${mod_version//./\\.}-rkc\.[0-9]+\+${minecraft_version//./\\.}$"
           if ! [[ "$tag_version" =~ $pattern ]]; then
