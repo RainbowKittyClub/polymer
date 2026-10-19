@@ -342,7 +342,7 @@ public class DefaultRPBuilder<T> implements InternalRPBuilder<T> {
 
     @Override
     public void forEachResource(BiConsumer<String,  PackResource> consumer) {
-        Map.copyOf(this.fileMap).forEach(consumer);
+        new TreeMap<>(this.fileMap).forEach(consumer);
     }
 
     @Override
