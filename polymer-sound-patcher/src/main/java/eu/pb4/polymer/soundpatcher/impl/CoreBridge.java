@@ -9,6 +9,7 @@ import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.SoundType;
@@ -25,6 +26,12 @@ public class CoreBridge {
     public static void registerMutedPlaceSounds() {
         PolymerBlockItemStandIns.registerMutedSound((sound, context) ->
                 SoundRemapperImpl.isConverted(sound) && PolymerResourcePackUtils.hasMainPack(context));
+    }
+
+    // True when this player's client mutes its own copy of the sound, so it hears only the server's.
+    public static boolean isMutedFor(SoundEvent sound, Entity entity) {
+        return CompatStatus.POLYMER_CORE && entity instanceof ServerPlayer player
+                && PolymerBlockItemStandIns.isMuted(sound, player.connection.getPacketContext());
     }
 
     public static SoundType getClientSideSoundGroup(BlockState state, Entity entity) {
