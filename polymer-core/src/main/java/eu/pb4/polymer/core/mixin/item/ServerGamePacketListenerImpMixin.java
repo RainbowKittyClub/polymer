@@ -19,6 +19,7 @@ import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.other.ActionSource;
 import eu.pb4.polymer.core.impl.other.ClientBlockClick;
 import eu.pb4.polymer.core.mixin.entity.LivingEntityAccessor;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
@@ -163,11 +164,17 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
             soundOverride = ScopedOverride.NO_OP;
         }
 
-        var original = operation.call(instance, player, world, stack, hand, hitResult);
-        soundOverride.close();
-        var placedAt = ClientBlockClick.placedAt();
+        InteractionResult original;
+        BlockPos placedAt;
+        try {
+            original = operation.call(instance, player, world, stack, hand, hitResult);
+            placedAt = ClientBlockClick.placedAt();
+        } finally {
+            // Thread-wide state: an exception here must not leave the click or its exclusion in force
+            soundOverride.close();
+            clickScope.close();
+        }
         var placed = placedAt != null;
-        clickScope.close();
 
         if (click != null) {
             if (placed && click.outcome() == ClientBlockClick.Outcome.PLACED) {
