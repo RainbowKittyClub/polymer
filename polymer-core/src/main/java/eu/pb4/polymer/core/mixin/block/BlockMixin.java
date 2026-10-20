@@ -45,18 +45,26 @@ public class BlockMixin {
             if (!PolymerBlockUtils.isBrokenByClient(serverPlayer, pos)) {
                 // Vanilla's break event leaves the breaker out, and its client played nothing itself
                 serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK, pos, Block.getId(state), false));
-            } else if (!polymer$sawBreakEventState(serverPlayer, state)) {
-                // Its client played the effects of the block it sees, so only add the particles of ours
-                serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state), false));
+            } else {
+                var context = serverPlayer.connection.getPacketContext();
+                var breakState = PolymerBlockUtils.getBreakEventBlockState(state, context);
+                if (breakState != state) {
+                    polymer$addBreakEffect(serverPlayer, pos, state, PolymerBlockUtils.getPolymerBlockState(state, context),
+                            PolymerBlockUtils.getPolymerBlockState(breakState, context));
+                }
             }
         }
     }
 
+    // Its client played the break of the block it sees: add ours when that differs, with the sound only if its own
+    // sounded different (a stand-in such as light sounds like stone).
     @Unique
-    private static boolean polymer$sawBreakEventState(ServerPlayer player, BlockState state) {
-        var context = player.connection.getPacketContext();
-        var breakState = PolymerBlockUtils.getBreakEventBlockState(state, context);
-        return breakState == state
-                || PolymerBlockUtils.getPolymerBlockState(breakState, context) == PolymerBlockUtils.getPolymerBlockState(state, context);
+    private static void polymer$addBreakEffect(ServerPlayer player, BlockPos pos, BlockState state, BlockState shown, BlockState breakShown) {
+        if (breakShown == shown) {
+            return;
+        }
+        var event = breakShown.getSoundType().getBreakSound() == shown.getSoundType().getBreakSound()
+                ? LevelEvent.PARTICLES_DESTROY_BLOCK : LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK;
+        player.connection.send(new ClientboundLevelEventPacket(event, pos, Block.getId(state), false));
     }
 }
