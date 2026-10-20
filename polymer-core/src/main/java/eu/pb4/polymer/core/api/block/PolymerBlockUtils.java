@@ -212,6 +212,21 @@ public final class PolymerBlockUtils {
         return ((ServerPlayerGameModeExtra) player.gameMode).polymer$isBrokenByClient(pos);
     }
 
+    /**
+     * Gets the block state whose break effects a player is shown for this block: its {@link PolymerBlock}'s break
+     * event state, otherwise the state itself. {@link #getPolymerBlockState} of it is what the client sees.
+     *
+     * @param state   Server side block state
+     * @param context Context of the player
+     * @return the break event block state
+     */
+    public static BlockState getBreakEventBlockState(BlockState state, PacketContext context) {
+        if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock) {
+            return getBlockBreakBlockStateSafely(polymerBlock, state, NESTED_DEFAULT_DISTANCE, context);
+        }
+        return state;
+    }
+
     public static boolean shouldMineServerSide(ServerPlayer player, BlockPos pos, BlockState state) {
         return (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock block && block.handleMiningOnServer(player.getMainHandItem(), state, pos, player))
                 || (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.ITEM, player.getMainHandItem().getItem()) instanceof PolymerItem item && item.handleMiningOnServer(player.getMainHandItem(), state, pos, player))

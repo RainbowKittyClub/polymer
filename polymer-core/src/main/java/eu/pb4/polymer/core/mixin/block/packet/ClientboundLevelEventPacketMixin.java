@@ -1,9 +1,6 @@
 package eu.pb4.polymer.core.mixin.block.packet;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LevelEvent;
@@ -22,14 +19,8 @@ public class ClientboundLevelEventPacketMixin {
         if (this.type == LevelEvent.PARTICLES_DESTROY_BLOCK
                 || this.type == LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK
         ) {
-            var state = Block.stateById(data);
             var player = PacketContext.get();
-
-            if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock) {
-                state =  PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state,
-                        PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, player);
-            }
-
+            var state = PolymerBlockUtils.getBreakEventBlockState(Block.stateById(data), player);
             return Block.getId(PolymerBlockUtils.getPolymerBlockState(state, player));
         }
 

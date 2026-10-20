@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.mixin.block;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
@@ -42,25 +41,22 @@ public class BlockMixin {
 
     @Inject(method = "spawnDestroyByEntityParticles", at = @At("HEAD"))
     private void addPolymerParticles(Level level, Entity entity, BlockPos pos, BlockState state, CallbackInfo ci) {
-        if (entity instanceof ServerPlayer serverPlayer
-                && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state)
-                && !polymer$playedByClient(serverPlayer, pos, state)) {
-            serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state), false));
+        if (entity instanceof ServerPlayer serverPlayer && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state)) {
+            if (!PolymerBlockUtils.isBrokenByClient(serverPlayer, pos)) {
+                // Vanilla's break event leaves the breaker out, and its client played nothing itself
+                serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK, pos, Block.getId(state), false));
+            } else if (!polymer$sawBreakEventState(serverPlayer, state)) {
+                // Its client played the effects of the block it sees, so only add the particles of ours
+                serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state), false));
+            }
         }
     }
 
     @Unique
-    private static boolean polymer$playedByClient(ServerPlayer player, BlockPos pos, BlockState state) {
-        if (!PolymerBlockUtils.isBrokenByClient(player, pos)) {
-            return false;
-        }
-
-        // Client already played the effect of the block it sees, so only send it if ours differs
+    private static boolean polymer$sawBreakEventState(ServerPlayer player, BlockState state) {
         var context = player.connection.getPacketContext();
-        var breakState = state;
-        if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock) {
-            breakState = PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, context);
-        }
-        return PolymerBlockUtils.getPolymerBlockState(breakState, context) == PolymerBlockUtils.getPolymerBlockState(state, context);
+        var breakState = PolymerBlockUtils.getBreakEventBlockState(state, context);
+        return breakState == state
+                || PolymerBlockUtils.getPolymerBlockState(breakState, context) == PolymerBlockUtils.getPolymerBlockState(state, context);
     }
 }
