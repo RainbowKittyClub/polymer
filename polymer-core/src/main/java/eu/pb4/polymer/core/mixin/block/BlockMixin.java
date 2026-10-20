@@ -1,6 +1,5 @@
 package eu.pb4.polymer.core.mixin.block;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
@@ -42,25 +41,30 @@ public class BlockMixin {
 
     @Inject(method = "spawnDestroyByEntityParticles", at = @At("HEAD"))
     private void addPolymerParticles(Level level, Entity entity, BlockPos pos, BlockState state, CallbackInfo ci) {
-        if (entity instanceof ServerPlayer serverPlayer
-                && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state)
-                && !polymer$playedByClient(serverPlayer, pos, state)) {
-            serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state), false));
+        if (entity instanceof ServerPlayer serverPlayer && PolymerBlockUtils.shouldMineServerSide(serverPlayer, pos, state)) {
+            if (!PolymerBlockUtils.isBrokenByClient(serverPlayer, pos)) {
+                // Vanilla's break event leaves the breaker out, and its client played nothing itself
+                serverPlayer.connection.send(new ClientboundLevelEventPacket(LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK, pos, Block.getId(state), false));
+            } else {
+                var context = serverPlayer.connection.getPacketContext();
+                var breakState = PolymerBlockUtils.getBreakEventBlockState(state, context);
+                if (breakState != state) {
+                    polymer$addBreakEffect(serverPlayer, pos, state, PolymerBlockUtils.getPolymerBlockState(state, context),
+                            PolymerBlockUtils.getPolymerBlockState(breakState, context));
+                }
+            }
         }
     }
 
+    // Its client played the break of the block it sees: add ours when that differs, with the sound only if its own
+    // sounded different (a stand-in such as light sounds like stone).
     @Unique
-    private static boolean polymer$playedByClient(ServerPlayer player, BlockPos pos, BlockState state) {
-        if (!PolymerBlockUtils.isBrokenByClient(player, pos)) {
-            return false;
+    private static void polymer$addBreakEffect(ServerPlayer player, BlockPos pos, BlockState state, BlockState shown, BlockState breakShown) {
+        if (breakShown == shown) {
+            return;
         }
-
-        // Client already played the effect of the block it sees, so only send it if ours differs
-        var context = player.connection.getPacketContext();
-        var breakState = state;
-        if (PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, state.getBlock()) instanceof PolymerBlock polymerBlock) {
-            breakState = PolymerBlockUtils.getBlockBreakBlockStateSafely(polymerBlock, state, PolymerBlockUtils.NESTED_DEFAULT_DISTANCE, context);
-        }
-        return PolymerBlockUtils.getPolymerBlockState(breakState, context) == PolymerBlockUtils.getPolymerBlockState(state, context);
+        var event = breakShown.getSoundType().getBreakSound() == shown.getSoundType().getBreakSound()
+                ? LevelEvent.PARTICLES_DESTROY_BLOCK : LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK;
+        player.connection.send(new ClientboundLevelEventPacket(event, pos, Block.getId(state), false));
     }
 }

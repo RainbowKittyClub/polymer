@@ -74,8 +74,12 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     @Nullable
     private BlockState polymer$currentlyMinedState;
 
+    // Server ticks of the last fatigue send and removal, to tell what the client had when it sent a packet
     @Unique
-    private int polymer$miningFatigueClearTick = -1;
+    private int polymer$fatigueSentTick = -1;
+
+    @Unique
+    private int polymer$fatigueClearedTick = -1;
 
     @Unique
     @Nullable
@@ -143,7 +147,10 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
 
                 float clientDelta = clientState.getDestroyProgress(this.player, this.level, pos);
 
-                var clientHasFatigue = this.polymer$hasMiningFatigue || this.polymer$isFatigueClearInFlight();
+                // Fatigue it had received, or a removal it had not
+                var clientHasFatigue = this.polymer$hasMiningFatigue
+                        ? !this.polymer$isInFlight(this.polymer$fatigueSentTick)
+                        : this.polymer$isInFlight(this.polymer$fatigueClearedTick);
                 if (clientDelta >= 1.0f && !clientHasFatigue) {
                     this.polymer$clientBrokenPos = pos;
                 }
@@ -239,6 +246,9 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
 
     @Unique
     private void polymer$sendMiningFatigue() {
+        if (!this.polymer$hasMiningFatigue) {
+            this.polymer$fatigueSentTick = this.level.getServer().getTickCount();
+        }
         this.polymer$hasMiningFatigue = true;
         var x = new AttributeInstance(Attributes.BLOCK_BREAK_SPEED, (a) -> {
         });
@@ -246,18 +256,21 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         this.player.connection.send(new ClientboundUpdateAttributesPacket(this.player.getId(), List.of(x)));
     }
 
-    // The client keeps fatigue until its removal arrives, so what it sent before then can reach us up to a
-    // round trip after the removal, plus the tick the packet waits to be handled.
+    // What the client sent before a fatigue change reached it can reach us up to a round trip after the change, plus
+    // the tick the packet waits to be handled. Server ticks, as predictive mining changes it before gameTicks advances.
     @Unique
-    private boolean polymer$isFatigueClearInFlight() {
-        return this.polymer$miningFatigueClearTick >= 0
-                && this.gameTicks - this.polymer$miningFatigueClearTick <= Mth.positiveCeilDiv(this.player.connection.latency(), 50) + 1;
+    private boolean polymer$isInFlight(int changeTick) {
+        if (changeTick < 0) {
+            return false;
+        }
+        var roundTrip = Mth.ceil(this.player.connection.latency() / this.level.tickRateManager().millisecondsPerTick());
+        return this.level.getServer().getTickCount() - changeTick <= roundTrip + 1;
     }
 
     @Unique
     private void polymer$clearMiningEffect() {
         if (this.polymer$hasMiningFatigue) {
-            this.polymer$miningFatigueClearTick = this.gameTicks;
+            this.polymer$fatigueClearedTick = this.level.getServer().getTickCount();
         }
         this.polymer$hasMiningFatigue = false;
         this.player.connection.send(new ClientboundUpdateAttributesPacket(this.player.getId(),
