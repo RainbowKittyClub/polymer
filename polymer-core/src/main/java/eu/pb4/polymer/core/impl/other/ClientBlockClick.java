@@ -20,7 +20,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipePropertySet;
-import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.AbstractBedBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.CampfireBlock;
@@ -131,15 +131,16 @@ public final class ClientBlockClick {
             // useItemOn: CONSUME for an unwaxed sign; waxed only if its block entity data reached the client.
             return player.level().getBlockEntity(hit.getBlockPos()) instanceof SignBlockEntity sign && sign.isWaxed() ? ClientUse.SWING : ClientUse.SILENT;
         }
-        if (block instanceof BedBlock || block instanceof LightBlock) {
+        if (block instanceof AbstractBedBlock || block instanceof LightBlock) {
             // SUCCESS_SERVER and CONSUME on the client.
             return ClientUse.SILENT;
         }
         if (block instanceof FlowerPotBlock pot) {
             return pot.getPotted() == Blocks.AIR ? ClientUse.SILENT : ClientUse.SWING;
         }
-        if (block instanceof ShelfBlock) {
-            return hit.getDirection() == state.getValue(ShelfBlock.FACING) ? ClientUse.SWING : ClientUse.PASS;
+        if (block instanceof ShelfBlock shelf) {
+            // useItemOn: CONSUME on the client for a held item on a slot.
+            return shelf.getHitSlot(hit, state.getValue(ShelfBlock.FACING)).isPresent() ? ClientUse.SILENT : ClientUse.PASS;
         }
         if (block instanceof ChiseledBookShelfBlock shelf) {
             var slot = shelf.getHitSlot(hit, state.getValue(ChiseledBookShelfBlock.FACING));
@@ -246,7 +247,7 @@ public final class ClientBlockClick {
         PASSED
     }
 
-    /** A vanilla client's own block use for a main-hand click (Minecraft.startUseItem swings only for a CLIENT success). */
+    /** A vanilla client's own block use for a main-hand click (Minecraft.startUseItem swings only for a PREDICTED success). */
     public enum ClientUse {
         /** Its block use passed, so the item's own use follows. */
         PASS,

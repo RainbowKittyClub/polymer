@@ -19,6 +19,7 @@ import eu.pb4.polymer.core.impl.networking.PolymerServerProtocol;
 import eu.pb4.polymer.core.impl.other.ActionSource;
 import eu.pb4.polymer.core.impl.other.ClientBlockClick;
 import eu.pb4.polymer.core.mixin.entity.LivingEntityAccessor;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
@@ -163,32 +164,43 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
             soundOverride = ScopedOverride.NO_OP;
         }
 
-        var original = operation.call(instance, player, world, stack, hand, hitResult);
-        soundOverride.close();
-        var placedAt = ClientBlockClick.placedAt();
+        InteractionResult original;
+        BlockPos placedAt;
+        try {
+            original = operation.call(instance, player, world, stack, hand, hitResult);
+            placedAt = ClientBlockClick.placedAt();
+        } finally {
+            // Thread-wide state: an exception here must not leave the click or its exclusion in force
+            soundOverride.close();
+            clickScope.close();
+        }
         var placed = placedAt != null;
-        clickScope.close();
 
+        boolean unpredicted = false;
         if (click != null) {
             if (placed && click.outcome() == ClientBlockClick.Outcome.PLACED) {
                 ClientBlockClick.healColumn(this.player, placedAt);
             }
-            // A placement the client did not predict, or any success after its block took the click silently, needs the
-            // server's swing and the result kept for the client's other packets; handleUseItemOn swings a server-only
-            // success to the clicker too.
-            if ((placed && click.passed() || click.silentlyConsumed()) && original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED) {
-                original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER_ONLY, success.itemContext());
-                this.lastActionResult = original;
-                this.lastActionSource = ActionSource.BLOCK;
-                this.lastActionPos = hitResult;
-                return original;
+            var use = click.use();
+            if ((use == ClientBlockClick.ClientUse.SWING || use == ClientBlockClick.ClientUse.SWING_WITH_SOUND)
+                    && !(original instanceof InteractionResult.Success success && success.shouldSwing())) {
+                // The client swung for the block it sees and no longer reports it, so the others are shown that swing
+                this.player.swing(hand, stack.getInteractAnimation(), false);
             }
-            if (placed || click.outcome() == ClientBlockClick.Outcome.CONSUMED) {
+            // A placement the client did not predict, or any success after its block took the click silently, needs the
+            // server's swing and the result kept for the client's other packets; swung here once, as handleUseItemOn
+            // swings a server-only success twice.
+            unpredicted = (placed && click.passed() || click.silentlyConsumed())
+                    && original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED;
+            if (unpredicted) {
+                this.player.swing(hand, stack.getInteractAnimation(), true);
+                original = new InteractionResult.Success(InteractionResult.SwingSource.NONE, ((InteractionResult.Success) original).itemContext());
+            } else if (placed || click.outcome() == ClientBlockClick.Outcome.CONSUMED) {
                 return original;
             }
         }
 
-        if (this.forcePolymerInteraction || PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState, hitResult, serverWorld, original)) {
+        if (unpredicted || this.forcePolymerInteraction || PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState, hitResult, serverWorld, original)) {
             if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED) {
                 original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER_ONLY, success.itemContext());
             }
