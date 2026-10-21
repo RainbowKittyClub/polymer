@@ -6,6 +6,7 @@ import eu.pb4.polymer.core.impl.interfaces.PolymerCommonPacketListenerExtension;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.core.impl.other.DelayedAction;
 import eu.pb4.polymer.core.impl.other.ScheduledPacket;
+import eu.pb4.polymer.core.impl.other.SignEditSession;
 import eu.pb4.polymer.core.impl.ui.PotionUi;
 import io.netty.channel.ChannelFutureListener;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -14,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.stats.StatType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -40,6 +43,9 @@ public abstract class ServerCommonPacketListenerImplMixin implements PolymerComm
     private final Object2ObjectMap<String, DelayedAction> polymer$delayedActions = new Object2ObjectArrayMap<>();
     @Unique
     private ArrayList<ScheduledPacket> polymer$scheduledPackets = new ArrayList<>();
+    @Unique
+    @Nullable
+    private SignEditSession polymer$signEditSession;
 
     @Shadow
     public abstract void send(Packet<?> packet);
@@ -67,6 +73,9 @@ public abstract class ServerCommonPacketListenerImplMixin implements PolymerComm
         if (!this.polymer$delayedActions.isEmpty()) {
             this.polymer$delayedActions.entrySet().removeIf(e -> e.getValue().tryDoing());
         }
+        if (this.polymer$signEditSession != null && (Object) this instanceof ServerGamePacketListenerImpl handler) {
+            SignEditSession.tick(handler);
+        }
         this.polymerCore$tick++;
 
     }
@@ -74,6 +83,16 @@ public abstract class ServerCommonPacketListenerImplMixin implements PolymerComm
     @Override
     public void polymer$delayAction(String identifier, int delay, Runnable action) {
         this.polymer$delayedActions.put(identifier, new DelayedAction(identifier, delay, action));
+    }
+
+    @Override
+    public @Nullable SignEditSession polymer$getSignEditSession() {
+        return this.polymer$signEditSession;
+    }
+
+    @Override
+    public void polymer$setSignEditSession(@Nullable SignEditSession session) {
+        this.polymer$signEditSession = session;
     }
 
 
@@ -86,6 +105,8 @@ public abstract class ServerCommonPacketListenerImplMixin implements PolymerComm
     private void polymer$skipPackets(Packet<ClientGamePacketListener> packet, ChannelFutureListener listener, CallbackInfo ci) {
         if (PacketPatcher.prevent((ServerCommonPacketListenerImpl) (Object) this, packet)) {
             ci.cancel();
+        } else if (this.polymer$signEditSession != null) {
+            SignEditSession.onSend((ServerCommonPacketListenerImpl) (Object) this, packet);
         }
     }
 
@@ -113,6 +134,8 @@ public abstract class ServerCommonPacketListenerImplMixin implements PolymerComm
             } else if (id.getPath().equals("open_effects")
                     && CommonImplUtils.permissionCheck(connection.getPlayer(), "command/effects", 0)) {
                 new PotionUi(connection.getPlayer());
+            } else if (id.getPath().equals("sign_edit") && connection instanceof ServerGamePacketListenerImpl handler) {
+                SignEditSession.handleClick(handler, packet.payload());
             }
         }
     }

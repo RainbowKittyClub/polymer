@@ -3,9 +3,11 @@ package eu.pb4.polymer.core.mixin.other;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.impl.ClientMetadataKeys;
 import eu.pb4.polymer.core.impl.interfaces.PolymerGamePacketListenerExtension;
+import eu.pb4.polymer.core.impl.other.SignEditSession;
 import eu.pb4.polymer.networking.api.PolymerNetworking;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -64,6 +66,11 @@ public abstract class ServerGamePacketListenerImplMixin implements PolymerGamePa
             }
             this.polymer$afterSequence.clear();
         }
+    }
+
+    @Inject(method = "onDisconnect", at = @At("HEAD"))
+    private void polymer$dropSignEditSession(DisconnectionDetails details, CallbackInfo ci) {
+        SignEditSession.drop((ServerGamePacketListenerImpl) (Object) this);
     }
 
     @Override
