@@ -35,6 +35,11 @@ public class DefaultModelData {
     private static final Predicate<BlockState> WATERLOGGED_PREDICATE = (state -> state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED));
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED)));
 
+    // New in 26.3: ViaBackwards turns them into other blocks for 26.1 and 26.2 clients, so they can't carry a model.
+    private static final Set<Block> NEWER_THAN_OLDEST_CLIENT = Set.of(Blocks.POPLAR_SAPLING, Blocks.YELLOW_POPLAR_LEAVES,
+            Blocks.ORANGE_POPLAR_LEAVES, Blocks.RED_POPLAR_LEAVES, Blocks.POPLAR_SHELF, Blocks.POPLAR_SLAB,
+            Blocks.POPLAR_FENCE_GATE, Blocks.POPLAR_DOOR, Blocks.POPLAR_TRAPDOOR);
+
     static {
         var bools = new boolean[]{false, true};
 
@@ -777,6 +782,9 @@ public class DefaultModelData {
                     Blocks.JUNGLE_FENCE_GATE, Blocks.MANGROVE_FENCE_GATE, Blocks.OAK_FENCE_GATE,
                     Blocks.PALE_OAK_FENCE_GATE, Blocks.POPLAR_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.WARPED_FENCE_GATE);
         }
+
+        USABLE_STATES.replaceAll((type, states) -> new ReferenceArrayList<>(states.stream()
+                .filter(state -> !NEWER_THAN_OLDEST_CLIENT.contains(state.getBlock())).toList()));
 
         if (false) {
             PolymerImpl.LOGGER.info("===== Available States =====");
