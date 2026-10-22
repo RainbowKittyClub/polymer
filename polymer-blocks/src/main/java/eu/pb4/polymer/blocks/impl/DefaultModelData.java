@@ -35,8 +35,14 @@ public class DefaultModelData {
     private static final Predicate<BlockState> WATERLOGGED_PREDICATE = (state -> state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED));
     private static final Predicate<BlockState> NOT_WATERLOGGED_PREDICATE = (state -> !(state.getBlock() instanceof SimpleWaterloggedBlock && state.getValue(BlockStateProperties.WATERLOGGED)));
 
+    /**
+     * Real states of blocks 26.1 or 26.2 clients lack, each mapped to a look-alike that ViaBackwards
+     * turns into no carrier state for them, as a requested carrier's own real states are.
+     */
+    public static final Map<BlockState, BlockState> OLDER_CLIENT_REMAPS = new IdentityHashMap<>();
+
     // New in 26.2 or 26.3: ViaBackwards turns them into other blocks for 26.1 and 26.2 clients, so they can't carry
-    // a model.
+    // a model, and some of their real states would turn into carrier states there.
     private static final Set<Block> NEWER_THAN_OLDEST_CLIENT = new HashSet<>(List.of(
             Blocks.SULFUR_SLAB, Blocks.POLISHED_SULFUR_SLAB, Blocks.SULFUR_BRICK_SLAB, Blocks.CINNABAR_SLAB,
             Blocks.POLISHED_CINNABAR_SLAB, Blocks.CINNABAR_BRICK_SLAB, Blocks.POPLAR_SAPLING, Blocks.YELLOW_POPLAR_LEAVES,
@@ -791,8 +797,16 @@ public class DefaultModelData {
                     Blocks.PALE_OAK_FENCE_GATE, Blocks.POPLAR_FENCE_GATE, Blocks.SPRUCE_FENCE_GATE, Blocks.WARPED_FENCE_GATE);
         }
 
-        USABLE_STATES.replaceAll((type, states) -> new ReferenceArrayList<>(states.stream()
-                .filter(state -> !NEWER_THAN_OLDEST_CLIENT.contains(state.getBlock())).toList()));
+        for (var block : NEWER_THAN_OLDEST_CLIENT) {
+            for (var state : block.getStateDefinition().getPossibleStates()) {
+                var lookAlike = olderClientLookAlike(state);
+                if (lookAlike != state) {
+                    OLDER_CLIENT_REMAPS.put(state, lookAlike);
+                }
+            }
+        }
+        USABLE_STATES.values().forEach(states -> states.removeIf(state -> NEWER_THAN_OLDEST_CLIENT.contains(state.getBlock())));
+        SPECIAL_REMAPS.keySet().removeIf(state -> NEWER_THAN_OLDEST_CLIENT.contains(state.getBlock()));
 
         if (false) {
             PolymerImpl.LOGGER.info("===== Available States =====");
@@ -801,6 +815,25 @@ public class DefaultModelData {
 
             }
         }
+    }
+
+    // ViaBackwards keeps the properties, so natural poplar leaves would reach older clients as oak leaf carriers,
+    // a stage 1 poplar sapling as a birch one and so on. Poplar shelves become birch ones, which no pool holds.
+    private static BlockState olderClientLookAlike(BlockState state) {
+        var block = state.getBlock();
+        if (block instanceof LeavesBlock && !state.getValue(LeavesBlock.PERSISTENT)) {
+            return block.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true)
+                    .setValue(LeavesBlock.WATERLOGGED, state.getValue(LeavesBlock.WATERLOGGED));
+        } else if (block instanceof SaplingBlock) {
+            return state.setValue(SaplingBlock.STAGE, 0);
+        } else if (block instanceof SlabBlock && state.getValue(SlabBlock.TYPE) == SlabType.DOUBLE) {
+            return SPECIAL_REMAPS.getOrDefault(state, state);
+        } else if (block instanceof DoorBlock || block instanceof TrapDoorBlock || block instanceof FenceGateBlock) {
+            return state.setValue(BlockStateProperties.POWERED, false);
+        } else if (block instanceof AbstractBedBlock) {
+            return state.setValue(AbstractBedBlock.OCCUPIED, false);
+        }
+        return state;
     }
 
     private static void addSculkBlocks(boolean waterlogged, boolean active, List<BlockState> list) {
