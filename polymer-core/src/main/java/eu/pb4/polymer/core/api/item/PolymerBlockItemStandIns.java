@@ -60,10 +60,10 @@ public final class PolymerBlockItemStandIns {
     );
 
     /**
-     * Whether a block whose one stand-in is a note block outside a stable slot pins. Off, such a
-     * block gets the firework star. System property {@code polymer.standIns.pinUnstable}.
+     * Whether a block whose one stand-in is a note block outside a stable slot pins. Off by default,
+     * so such a block gets the firework star. System property {@code polymer.standIns.pinUnstable}.
      */
-    public static final boolean PIN_UNSTABLE = Boolean.parseBoolean(System.getProperty("polymer.standIns.pinUnstable", "true"));
+    public static final boolean PIN_UNSTABLE = Boolean.parseBoolean(System.getProperty("polymer.standIns.pinUnstable", "false"));
 
     private static final Map<Key, Decision> CACHE = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Boolean> SURVIVAL_RULES = new ConcurrentHashMap<>();
