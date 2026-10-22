@@ -99,7 +99,11 @@ public abstract class WorldChunkMixin extends ChunkAccess implements HolderAttac
     @Unique
     private boolean polymerVE$keepsHolder(BlockBoundAttachment attachment, BlockPos pos, BlockState state) {
         var creator = BlockWithElementHolder.get(state);
+        // Only a live holder that matches a fresh one's offset and ticking
         return creator != null && this.level instanceof ServerLevel world
+                && attachment.holder().getAttachment() == attachment
+                && attachment.shouldTick() == creator.tickElementHolder(world, pos, state)
+                && attachment.getPos().equals(Vec3.atCenterOf(pos).add(creator.getElementHolderOffset(world, pos, state)))
                 && creator.keepElementHolder(world, pos, attachment.getBlockState(), state, attachment.holder());
     }
 
@@ -145,7 +149,7 @@ public abstract class WorldChunkMixin extends ChunkAccess implements HolderAttac
     public void polymerVE$removeHolder(HolderAttachment holderAttachment) {
         this.polymerVE$holders.remove(holderAttachment);
         if (holderAttachment instanceof BlockBoundAttachment blockBoundAttachment) {
-            this.polymerVE$posHolders.remove(blockBoundAttachment);
+            this.polymerVE$posHolders.remove(blockBoundAttachment.getBlockPos(), blockBoundAttachment);
         }
     }
 
