@@ -59,6 +59,7 @@ public final class BlockResourceCreator {
         this.models = new IdentityHashMap<>();
         this.creator = creator;
         this.blockMapper = blockMapper;
+        this.blockMapper.stateMap.putAll(DefaultModelData.OLDER_CLIENT_REMAPS);
         this.onRegister = onRegister;
     }
 
