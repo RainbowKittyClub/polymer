@@ -88,12 +88,19 @@ public abstract class WorldChunkMixin extends ChunkAccess implements HolderAttac
     private void polymerVE$removeOld(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
         var x = this.polymerVE$posHolders.get(pos);
         if (x != null) {
-            if (x.getBlockState().getBlock() != state.getBlock()) {
+            if (x.getBlockState().getBlock() != state.getBlock() && !this.polymerVE$keepsHolder(x, pos, state)) {
                 this.polymerVE$removePosHolder(pos);
             } else {
                 x.setBlockState(state);
             }
         }
+    }
+
+    @Unique
+    private boolean polymerVE$keepsHolder(BlockBoundAttachment attachment, BlockPos pos, BlockState state) {
+        var creator = BlockWithElementHolder.get(state);
+        return creator != null && this.level instanceof ServerLevel world
+                && creator.keepElementHolder(world, pos, attachment.getBlockState(), state, attachment.holder());
     }
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;isClientSide()Z", ordinal = 1, shift = At.Shift.BEFORE))

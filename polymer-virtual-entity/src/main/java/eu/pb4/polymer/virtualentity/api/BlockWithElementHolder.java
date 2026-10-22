@@ -30,6 +30,16 @@ public interface BlockWithElementHolder {
         return false;
     }
 
+    /**
+     * Called when a block changes into this block (for example, a log stripped into its stripped log) while the old
+     * block's element holder is there. Return true to keep that holder, which then gets a block state update, instead
+     * of having it destroyed and a new one created. Clients keep its entities: a newly spawned display draws nothing
+     * until the client ticks it once, so a replaced holder can flash whatever is behind it.
+     */
+    default boolean keepElementHolder(ServerLevel world, BlockPos pos, BlockState oldState, BlockState newState, ElementHolder holder) {
+        return false;
+    }
+
     @Nullable
     default ElementHolder createMovingElementHolder(ServerLevel world, BlockPos blockPos, BlockState blockState, @Nullable ElementHolder oldStaticElementHolder) {
         return oldStaticElementHolder != null ? oldStaticElementHolder : createElementHolder(world, blockPos, blockState);
