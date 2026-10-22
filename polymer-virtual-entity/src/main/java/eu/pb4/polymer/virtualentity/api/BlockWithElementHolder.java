@@ -31,10 +31,15 @@ public interface BlockWithElementHolder {
     }
 
     /**
-     * Called when a block changes into this block (for example, a log stripped into its stripped log) while the old
-     * block's element holder is there. Return true to keep that holder, which then gets a block state update, instead
-     * of having it destroyed and a new one created. Clients keep its entities: a newly spawned display draws nothing
-     * until the client ticks it once, so a replaced holder can flash whatever is behind it.
+     * Called when a block changes into this block (for example, a log stripped into its stripped log) while a block-bound
+     * element holder is there. Return true to keep that holder, which then gets a block state update, instead of having
+     * it destroyed and a new one created. Clients keep its entities: a newly spawned display draws nothing until the
+     * client ticks it once, so a replaced holder can flash whatever is behind it.
+     * <p>
+     * The holder can come from any block or mod, so check its type; oldState is the last state it was given. It is only
+     * kept while still attached there and when this block's holder offset and ticking match its attachment's. This runs
+     * mid block change, before block entities are swapped, so neither this nor the holder's update should rely on the
+     * block entity or change the world.
      */
     default boolean keepElementHolder(ServerLevel world, BlockPos pos, BlockState oldState, BlockState newState, ElementHolder holder) {
         return false;
