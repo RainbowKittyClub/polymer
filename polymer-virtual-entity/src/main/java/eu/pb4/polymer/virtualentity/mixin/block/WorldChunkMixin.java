@@ -145,7 +145,7 @@ public abstract class WorldChunkMixin extends ChunkAccess implements HolderAttac
     public void polymerVE$removeHolder(HolderAttachment holderAttachment) {
         this.polymerVE$holders.remove(holderAttachment);
         if (holderAttachment instanceof BlockBoundAttachment blockBoundAttachment) {
-            this.polymerVE$posHolders.remove(blockBoundAttachment);
+            this.polymerVE$posHolders.remove(blockBoundAttachment.getBlockPos(), blockBoundAttachment);
         }
     }
 
