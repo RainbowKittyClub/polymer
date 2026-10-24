@@ -176,7 +176,7 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
         }
         var placed = placedAt != null;
 
-        boolean unpredicted = false;
+        boolean keepResult = false;
         if (click != null) {
             if (placed && click.outcome() == ClientBlockClick.Outcome.PLACED) {
                 ClientBlockClick.healColumn(this.player, placedAt);
@@ -187,20 +187,20 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
                 // The client swung for the block it sees and no longer reports it, so the others are shown that swing
                 this.player.swing(hand, stack.getInteractAnimation(), false);
             }
-            // A placement the client did not predict, or any success after its block took the click silently, needs the
-            // server's swing and the result kept for the client's other packets; swung here once, as handleUseItemOn
-            // swings a server-only success twice.
-            unpredicted = (placed && click.passed() || click.silentlyConsumed())
-                    && original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED;
-            if (unpredicted) {
+            // A placement the client did not predict, or any success after its block took the click silently, keeps the
+            // result for the client's other packets, whatever it swings: after its own click passed, the client also sends
+            // the item's use, which must not run on top of the placement. A predicted success also needs the server's
+            // swing; swung here once, as handleUseItemOn swings a server-only success twice.
+            keepResult = (placed && click.passed() || click.silentlyConsumed()) && original instanceof InteractionResult.Success;
+            if (keepResult && original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED) {
                 this.player.swing(hand, stack.getInteractAnimation(), true);
-                original = new InteractionResult.Success(InteractionResult.SwingSource.NONE, ((InteractionResult.Success) original).itemContext());
-            } else if (placed || click.outcome() == ClientBlockClick.Outcome.CONSUMED) {
+                original = new InteractionResult.Success(InteractionResult.SwingSource.NONE, success.itemContext());
+            } else if (!keepResult && (placed || click.outcome() == ClientBlockClick.Outcome.CONSUMED)) {
                 return original;
             }
         }
 
-        if (unpredicted || this.forcePolymerInteraction || PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState, hitResult, serverWorld, original)) {
+        if (keepResult || this.forcePolymerInteraction || PolymerBlockUtils.isPolymerBlockInteraction(this.player, stack, hand, oldState, hitResult, serverWorld, original)) {
             if (original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED) {
                 original = new InteractionResult.Success(InteractionResult.SwingSource.SERVER_ONLY, success.itemContext());
             }
