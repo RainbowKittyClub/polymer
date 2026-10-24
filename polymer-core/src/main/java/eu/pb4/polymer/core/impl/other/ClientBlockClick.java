@@ -165,6 +165,7 @@ public final class ClientBlockClick {
         return () -> {
             exclusion.close();
             CURRENT.remove();
+            PLACED_AT.remove();
         };
     }
 
@@ -190,7 +191,7 @@ public final class ClientBlockClick {
         PLACED_AT.set(pos.immutable());
     }
 
-    /** Where BlockItem.place put its block during the current click, or null; cleared by {@link #enter()}. */
+    /** Where BlockItem.place put its block during the current click, or null; cleared as {@link #enter()}'s scope opens and closes. */
     public static @Nullable BlockPos placedAt() {
         var pos = PLACED_AT.get();
         PLACED_AT.remove();
