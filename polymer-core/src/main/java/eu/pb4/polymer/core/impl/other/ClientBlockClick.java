@@ -14,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
@@ -58,12 +59,13 @@ public final class ClientBlockClick {
 
     private final Outcome outcome;
     private final ClientUse use;
-    private final boolean heardOwnSound;
+    // The place sound the client's own placement played, or null when it played none.
+    private final @Nullable SoundEvent ownPlaceSound;
 
-    private ClientBlockClick(Outcome outcome, ClientUse use, boolean heardOwnSound) {
+    private ClientBlockClick(Outcome outcome, ClientUse use, @Nullable SoundEvent ownPlaceSound) {
         this.outcome = outcome;
         this.use = use;
-        this.heardOwnSound = heardOwnSound;
+        this.ownPlaceSound = ownPlaceSound;
     }
 
     /**
@@ -88,18 +90,18 @@ public final class ClientBlockClick {
         boolean suppressed = player.isSecondaryUseActive() && (!player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty());
         var use = hand == InteractionHand.MAIN_HAND && !suppressed ? clientUse(player, clientState, hit, clientStack) : ClientUse.PASS;
         if (use != ClientUse.PASS) {
-            return new ClientBlockClick(polymerBlock != null ? Outcome.CONSUMED_BY_STAND_IN : Outcome.CONSUMED, use, false);
+            return new ClientBlockClick(polymerBlock != null ? Outcome.CONSUMED_BY_STAND_IN : Outcome.CONSUMED, use, null);
         }
         if (!(clientStack.getItem() instanceof BlockItem clientItem)) {
-            return new ClientBlockClick(Outcome.PASSED, use, false);
+            return new ClientBlockClick(Outcome.PASSED, use, null);
         }
         var predicted = clientItem.getBlock().defaultBlockState();
         var pin = clientStack.get(DataComponents.BLOCK_STATE);
         if (pin != null) {
             predicted = pin.apply(predicted);
         }
-        boolean heard = !PolymerBlockItemStandIns.isMuted(predicted.getSoundType().getPlaceSound(), context);
-        return new ClientBlockClick(Outcome.PLACED, use, heard);
+        var place = predicted.getSoundType().getPlaceSound();
+        return new ClientBlockClick(Outcome.PLACED, use, PolymerBlockItemStandIns.isMuted(place, context) ? null : place);
     }
 
     /**
@@ -221,9 +223,12 @@ public final class ClientBlockClick {
         return this.use;
     }
 
-    /** True when the client's own placement played its sound, so the server's must leave it out. */
-    public boolean heardOwnSound() {
-        return this.heardOwnSound;
+    /**
+     * True when the client's own placement already played this sound, so the server's must leave it out. A client
+     * whose placement sounded different (a stand-in that sounds unlike the real block) still gets the server's.
+     */
+    public boolean heardOwnSound(SoundEvent sound) {
+        return this.ownPlaceSound != null && this.ownPlaceSound.location().equals(sound.location());
     }
 
     /** The client's own interaction passed, so a server placement has to show the swing. */
