@@ -83,8 +83,8 @@ public final class ClientBlockClick {
         var clientState = polymerBlock != null
                 ? polymerBlock.getPolymerBlockStateAt(clicked, hit.getBlockPos(), player)
                 : PolymerBlockUtils.getPolymerBlockState(clicked, context);
-        // The client item, built as Polymer sends it, so any pin counts.
-        var clientStack = polymerItem != null ? PolymerItemUtils.getPolymerItemStack(stack, context, player.registryAccess()) : stack;
+        // The client item, built as Polymer sends it, so any pin counts, as does a rewrite of a vanilla stack.
+        var clientStack = PolymerItemUtils.getPolymerItemStack(stack, context, player.registryAccess());
         boolean suppressed = player.isSecondaryUseActive() && (!player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty());
         var use = hand == InteractionHand.MAIN_HAND && !suppressed ? clientUse(player, clientState, hit, clientStack) : ClientUse.PASS;
         if (use != ClientUse.PASS) {
