@@ -153,24 +153,23 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
 
         // A block item's click: what the client did decides the place sound (BlockItemMixin) and the swing.
         var click = ClientBlockClick.predict(this.player, stack, hand, oldState, hitResult);
-        var clickScope = click != null ? click.enter() : ScopedOverride.NO_OP;
-        ScopedOverride soundOverride;
-        if (click != null && click.outcome() == ClientBlockClick.Outcome.CONSUMED) {
-            // The client ran this interaction on the same block, sounds included.
-            soundOverride = ScopedOverride.NO_OP;
-        } else if (PolymerBlockUtils.isIgnoringPlaySoundExceptedEntity(this.player, stack, hand, oldState, hitResult, serverWorld)) {
-            soundOverride = PolymerUtils.ignorePlaySoundExclusion();
-        } else {
-            soundOverride = ScopedOverride.NO_OP;
-        }
+        ScopedOverride clickScope = ScopedOverride.NO_OP;
+        ScopedOverride soundOverride = ScopedOverride.NO_OP;
 
         InteractionResult original;
         BlockPos placedAt;
         try {
+            // Thread-wide state from here on: an exception, even from the checks below, must not leave the click or
+            // its exclusion in force, as a stranded final exclusion is never lifted again
+            clickScope = click != null ? click.enter() : ScopedOverride.NO_OP;
+            // A consumed vanilla click: the client ran this interaction on the same block, sounds included.
+            if ((click == null || click.outcome() != ClientBlockClick.Outcome.CONSUMED)
+                    && PolymerBlockUtils.isIgnoringPlaySoundExceptedEntity(this.player, stack, hand, oldState, hitResult, serverWorld)) {
+                soundOverride = PolymerUtils.ignorePlaySoundExclusion();
+            }
             original = operation.call(instance, player, world, stack, hand, hitResult);
             placedAt = ClientBlockClick.placedAt();
         } finally {
-            // Thread-wide state: an exception here must not leave the click or its exclusion in force
             soundOverride.close();
             clickScope.close();
         }

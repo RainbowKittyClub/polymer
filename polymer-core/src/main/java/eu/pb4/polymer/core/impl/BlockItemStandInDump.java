@@ -8,13 +8,12 @@ import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.component.BlockItemStateProperties;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
@@ -64,7 +63,7 @@ public final class BlockItemStandInDump {
             row.add("clientPin", pin(today.get(DataComponents.BLOCK_STATE)));
             row.addProperty("decision", BuiltInRegistries.ITEM.getKey(decision.item()).toString());
             row.add("pin", pin(decision.pin()));
-            row.addProperty("standIn", decision.standIn() != null ? stateName(decision.standIn()) : null);
+            row.addProperty("standIn", decision.standIn() != null ? BlockStateParser.serialize(decision.standIn()) : null);
             row.addProperty("standIns", decision.standIns());
             row.addProperty("allStandIns", survey.allStandIns());
             var standInBlocks = new JsonArray();
@@ -117,23 +116,5 @@ public final class BlockItemStandInDump {
         var out = new JsonObject();
         new TreeMap<>(pin.properties()).forEach(out::addProperty);
         return out;
-    }
-
-    private static String stateName(BlockState state) {
-        var builder = new StringBuilder(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
-        var iterator = state.getProperties().stream().sorted(Comparator.comparing(Property::getName)).iterator();
-        if (iterator.hasNext()) {
-            builder.append('[');
-            while (iterator.hasNext()) {
-                var property = iterator.next();
-                //noinspection rawtypes,unchecked
-                builder.append(property.getName()).append('=').append(((Property) property).getName(state.getValue(property)));
-                if (iterator.hasNext()) {
-                    builder.append(',');
-                }
-            }
-            builder.append(']');
-        }
-        return builder.toString();
     }
 }

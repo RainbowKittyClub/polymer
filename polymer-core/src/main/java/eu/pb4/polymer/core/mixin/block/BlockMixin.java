@@ -63,7 +63,8 @@ public class BlockMixin {
         if (breakShown == shown) {
             return;
         }
-        var event = breakShown.getSoundType().getBreakSound() == shown.getSoundType().getBreakSound()
+        // By id, as two sound types can hold separate SoundEvent instances of one sound
+        var event = breakShown.getSoundType().getBreakSound().location().equals(shown.getSoundType().getBreakSound().location())
                 ? LevelEvent.PARTICLES_DESTROY_BLOCK : LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK;
         player.connection.send(new ClientboundLevelEventPacket(event, pos, Block.getId(state), false));
     }

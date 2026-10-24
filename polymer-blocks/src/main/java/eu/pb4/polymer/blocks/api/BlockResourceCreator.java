@@ -34,6 +34,8 @@ import java.util.function.Predicate;
 
 public final class BlockResourceCreator {
     private static final PolymerBlockModel EMPTY = PolymerBlockModel.of(Identifier.fromNamespaceAndPath("polymer", "block/empty"));
+    // Compared by identity: the merge result of a multipart request MultipartModelMerger can't merge.
+    private static final PolymerBlockModel[] NOT_MERGED = new PolymerBlockModel[0];
     // What requests without a predicate pass, so FULL_BLOCK can tell them from predicate requests.
     static final Predicate<BlockState> ANY_STATE = x -> true;
     private final Map<BlockModelType, List<BlockState>> states;
@@ -275,6 +277,8 @@ public final class BlockResourceCreator {
         // this.models iterates in identity hash order, which changes every run.
         var sortedModels = new ArrayList<>(this.models.entrySet());
         sortedModels.sort(Comparator.comparingInt(entry -> Block.getId(entry.getKey())));
+        // Each multipart request is merged once, however many states share it; NOT_MERGED marks one that can't be.
+        var mergedModels = new IdentityHashMap<MultiPolymerBlockModel, PolymerBlockModel[]>();
 
         for (var blockStateEntry : sortedModels) {
             if (!this.hasRequested.contains(blockStateEntry.getKey().getBlock())) {
@@ -308,15 +312,20 @@ public final class BlockResourceCreator {
                 var stateName = PolymerBlocksInternal.generateStateName(state);
                 var array = PolymerBlocksInternal.createJsonElement(models.left().orElseThrow());
                 variants.computeIfAbsent(path, (s) -> new HashMap<>()).put(stateName, array);
-            } else if (MultipartModelMerger.merge(builder, models.right().orElseThrow()) instanceof PolymerBlockModel[] merged) {
-                var stateName = PolymerBlocksInternal.generateStateName(state);
-                variants.computeIfAbsent(path, (s) -> new HashMap<>()).put(stateName, PolymerBlocksInternal.createJsonElement(merged));
             } else {
-                for (var x : models.right().orElseThrow().models()) {
-                    var mult = new JsonObject();
-                    mult.add("when", selfMulti);
-                    mult.add("apply", PolymerBlocksInternal.createJsonElement(x));
-                    multipart.computeIfAbsent(path, (s) -> new ArrayList<>()).add(mult);
+                var multi = models.right().orElseThrow();
+                var merged = mergedModels.computeIfAbsent(multi,
+                        m -> Objects.requireNonNullElse(MultipartModelMerger.merge(builder, m), NOT_MERGED));
+                if (merged != NOT_MERGED) {
+                    var stateName = PolymerBlocksInternal.generateStateName(state);
+                    variants.computeIfAbsent(path, (s) -> new HashMap<>()).put(stateName, PolymerBlocksInternal.createJsonElement(merged));
+                } else {
+                    for (var x : multi.models()) {
+                        var mult = new JsonObject();
+                        mult.add("when", selfMulti);
+                        mult.add("apply", PolymerBlocksInternal.createJsonElement(x));
+                        multipart.computeIfAbsent(path, (s) -> new ArrayList<>()).add(mult);
+                    }
                 }
             }
 
