@@ -180,10 +180,14 @@ public abstract class ServerGamePacketListenerImpMixin extends ServerCommonPacke
             if (placed && click.outcome() == ClientBlockClick.Outcome.PLACED) {
                 ClientBlockClick.healColumn(this.player, placedAt);
             }
-            // A placement the client did not predict, or any success after its block took the click silently, needs the
-            // server's swing and the result kept for the client's other packets; swung here once, as handleUseItemOn would swing twice.
-            if ((placed && click.passed() || click.silentlyConsumed()) && original instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.CLIENT) {
-                this.player.swing(hand, true);
+            // A placement the client did not predict, or any success after its block took the click silently, keeps the
+            // result for the client's other packets, whatever it swings: after its own click passed, the client also sends
+            // the item's use, which must not run on top of the placement. A client-swung success also needs the server's
+            // swing; swung here once, as handleUseItemOn would swing twice.
+            if ((placed && click.passed() || click.silentlyConsumed()) && original instanceof InteractionResult.Success success) {
+                if (success.swingSource() == InteractionResult.SwingSource.CLIENT) {
+                    this.player.swing(hand, true);
+                }
                 this.lastActionResult = original;
                 this.lastActionSource = ActionSource.BLOCK;
                 this.lastActionPos = hitResult;
