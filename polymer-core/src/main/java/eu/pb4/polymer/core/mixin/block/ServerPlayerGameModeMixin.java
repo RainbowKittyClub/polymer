@@ -81,6 +81,15 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     @Unique
     private int polymer$fatigueClearedTick = -1;
 
+    // Server tick of the last fatigue packet of any kind, for the periodic re-send
+    @Unique
+    private int polymer$fatigueRefreshTick = -1;
+
+    // Ticks between fatigue re-sends, which repair an attribute vanilla re-synced. Tunable: lower if
+    // players on unreliable connections mine these blocks locally, raise to save traffic.
+    @Unique
+    private static final int POLYMER$FATIGUE_REFRESH_TICKS = 20;
+
     @Unique
     @Nullable
     private BlockPos polymer$clientBrokenPos;
@@ -213,9 +222,12 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             return;
         }
 
+        // Packets only on a flip or a due refresh, as this runs every tick for every player
         if (this.polymer$shouldMineServerSidePredictive()) {
-            this.polymer$sendMiningFatigue();
-        } else {
+            if (!this.polymer$hasMiningFatigue || this.polymer$isFatigueRefreshDue()) {
+                this.polymer$sendMiningFatigue();
+            }
+        } else if (this.polymer$hasMiningFatigue || this.polymer$currentlyMinedPos != null) {
             this.polymer$clearMiningEffect();
         }
     }
@@ -244,8 +256,16 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         return PolymerBlockUtils.shouldMineServerSide(this.player, pos, state);
     }
 
+    // Whether the fatigue packet was last sent a full refresh interval ago
+    @Unique
+    private boolean polymer$isFatigueRefreshDue() {
+        return this.level.getServer().getTickCount() - this.polymer$fatigueRefreshTick
+                >= POLYMER$FATIGUE_REFRESH_TICKS;
+    }
+
     @Unique
     private void polymer$sendMiningFatigue() {
+        this.polymer$fatigueRefreshTick = this.level.getServer().getTickCount();
         if (!this.polymer$hasMiningFatigue) {
             this.polymer$fatigueSentTick = this.level.getServer().getTickCount();
         }
