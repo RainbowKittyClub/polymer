@@ -68,7 +68,10 @@ public abstract class ServerLevelMixin extends Level {
             double yd = pos.getY() - player.getY();
             double zd = pos.getZ() - player.getZ();
             if (xd * xd + yd * yd + zd * zd < 64 * 64) {
-                if (SoundRemapperImpl.SOUND_EXCEPTION_IGNORER.contains(soundGetter.apply(CoreBridge.getClientSideSoundGroup(state, player)).location())) {
+                var clientSound = soundGetter.apply(
+                        CoreBridge.getClientSideSoundGroup(state, player));
+                // Unlike the raw exception set, this is false while the patcher is force disabled
+                if (SoundRemapperImpl.ignoreExceptions(clientSound)) {
                     if (sound == null) {
                         sound = new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(soundGetter.apply(group)), SoundSource.BLOCKS,
                                 pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
