@@ -213,9 +213,12 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             return;
         }
 
+        // Packets only when the state flips, as this runs every tick for every player
         if (this.polymer$shouldMineServerSidePredictive()) {
-            this.polymer$sendMiningFatigue();
-        } else {
+            if (!this.polymer$hasMiningFatigue) {
+                this.polymer$sendMiningFatigue();
+            }
+        } else if (this.polymer$hasMiningFatigue) {
             this.polymer$clearMiningEffect();
         }
     }
