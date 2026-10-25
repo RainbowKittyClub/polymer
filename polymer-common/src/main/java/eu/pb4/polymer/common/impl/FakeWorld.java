@@ -87,34 +87,48 @@ public final class FakeWorld extends Level implements LightChunk {
     static final Scoreboard SCOREBOARD = new Scoreboard();
 
     static final RegistryAccess FALLBACK_REGISTRY_MANAGER = new RegistryAccess() {
-        private final Map<ResourceKey, Optional<Registry>> REGISTRIES = ScopedValue.where(CommonImpl.SKIP_REGISTRY_VALIDATION, true).call(() ->
-            VanillaRegistriesAccessor.getRELOADABLE_BUILDER().build(VanillaRegistriesAccessor.getWORLD_BUILDER().build(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)))
-                    .listRegistries().map(lookup -> {
-                        if (BuiltInRegistries.REGISTRY.containsKey((ResourceKey) lookup.key())) {
-                            return BuiltInRegistries.REGISTRY.getValue((ResourceKey) lookup.key());
-                        }
-                        var reg = new MappedRegistry<>((ResourceKey) lookup.key(), lookup.registryLifecycle());
-
-                        lookup.listElements().forEach(entry -> {
-                            if (!reg.containsKey(entry.key()) && entry.isBound() && reg.getKey(entry.value()) == null) {
-                                reg.register(entry.key(), entry.value(), RegistrationInfo.BUILT_IN);
-                            }
-                        });
-
-                        return reg;
-                    }).collect(Collectors.toMap(Registry::key, Optional::of))
-        );
-
         @Override
         public <E> Optional<Registry<E>> lookup(ResourceKey<? extends Registry<? extends E>> registryKey) {
-            return (Optional<Registry<E>>) (Object) REGISTRIES.getOrDefault(registryKey, Optional.empty());
+            return (Optional<Registry<E>>) (Object) FallbackRegistries.REGISTRIES.getOrDefault(registryKey, Optional.empty());
         }
 
         @Override
         public Stream<RegistryEntry<?>> registries() {
-            return REGISTRIES.values().stream().map(x -> new RegistryEntry(x.orElseThrow().key(), x.orElseThrow()));
+            return FallbackRegistries.REGISTRIES.values().stream().map(x -> new RegistryEntry(x.orElseThrow().key(), x.orElseThrow()));
         }
     };
+
+    // Built on first lookup rather than when FakeWorld loads. A failing bootstrap leaves the map empty instead of
+    // failing FakeWorld's class init, which would turn every later use into a NoClassDefFoundError.
+    private static final class FallbackRegistries {
+        static final Map<ResourceKey, Optional<Registry>> REGISTRIES = build();
+
+        private static Map<ResourceKey, Optional<Registry>> build() {
+            try {
+                return ScopedValue.where(CommonImpl.SKIP_REGISTRY_VALIDATION, true).call(() ->
+                    VanillaRegistriesAccessor.getRELOADABLE_BUILDER().build(VanillaRegistriesAccessor.getWORLD_BUILDER().build(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)))
+                            .listRegistries().map(lookup -> {
+                                if (BuiltInRegistries.REGISTRY.containsKey((ResourceKey) lookup.key())) {
+                                    return BuiltInRegistries.REGISTRY.getValue((ResourceKey) lookup.key());
+                                }
+                                var reg = new MappedRegistry<>((ResourceKey) lookup.key(), lookup.registryLifecycle());
+
+                                lookup.listElements().forEach(entry -> {
+                                    if (!reg.containsKey(entry.key()) && entry.isBound() && reg.getKey(entry.value()) == null) {
+                                        reg.register(entry.key(), entry.value(), RegistrationInfo.BUILT_IN);
+                                    }
+                                });
+
+                                return reg;
+                            }).collect(Collectors.toMap(Registry::key, Optional::of))
+                );
+            } catch (Throwable e) {
+                CommonImpl.LOGGER.error("Creating the fallback registries for the fake world failed, it will have none...", e);
+                return Map.of();
+            }
+        }
+    }
+
     static final RecipeManager RECIPE_MANAGER = new RecipeManager(FALLBACK_REGISTRY_MANAGER);
     private static final FeatureFlagSet FEATURES = FeatureFlags.REGISTRY.allFlags();
     private static final LevelEntityGetter<Entity> ENTITY_LOOKUP = new LevelEntityGetter<>() {
