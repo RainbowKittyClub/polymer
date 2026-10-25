@@ -100,7 +100,7 @@ public final class FakeWorld extends Level implements LightChunk {
         }
     };
 
-    // Builds the vanilla registries on first lookup; a failed bootstrap leaves them empty.
+    // Holds the vanilla registries; a failed bootstrap leaves them empty instead of failing FakeWorld.
     private static final class FallbackRegistries {
         private static final Map<ResourceKey, Optional<Registry>> REGISTRIES = build();
 

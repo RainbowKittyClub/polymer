@@ -218,7 +218,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             if (!this.polymer$hasMiningFatigue) {
                 this.polymer$sendMiningFatigue();
             }
-        } else if (this.polymer$hasMiningFatigue) {
+        } else if (this.polymer$hasMiningFatigue || this.polymer$currentlyMinedPos != null) {
             this.polymer$clearMiningEffect();
         }
     }
