@@ -89,43 +89,54 @@ public final class FakeWorld extends Level implements LightChunk {
     static final RegistryAccess FALLBACK_REGISTRY_MANAGER = new RegistryAccess() {
         @Override
         public <E> Optional<Registry<E>> lookup(ResourceKey<? extends Registry<? extends E>> registryKey) {
-            return (Optional<Registry<E>>) (Object) FallbackRegistries.REGISTRIES.getOrDefault(registryKey, Optional.empty());
+            return (Optional<Registry<E>>) (Object) FallbackRegistries.REGISTRIES
+                    .getOrDefault(registryKey, Optional.empty());
         }
 
         @Override
         public Stream<RegistryEntry<?>> registries() {
-            return FallbackRegistries.REGISTRIES.values().stream().map(x -> new RegistryEntry(x.orElseThrow().key(), x.orElseThrow()));
+            return FallbackRegistries.REGISTRIES.values().stream()
+                    .map(x -> new RegistryEntry(x.orElseThrow().key(), x.orElseThrow()));
         }
     };
 
-    // Built on first lookup rather than when FakeWorld loads. A failing bootstrap leaves the map empty instead of
-    // failing FakeWorld's class init, which would turn every later use into a NoClassDefFoundError.
+    // Builds the vanilla registries on first lookup; a failed bootstrap leaves them empty.
     private static final class FallbackRegistries {
-        static final Map<ResourceKey, Optional<Registry>> REGISTRIES = build();
+        private static final Map<ResourceKey, Optional<Registry>> REGISTRIES = build();
 
+        // Runs the vanilla bootstrap, logging a failure instead of failing FakeWorld's class init.
         private static Map<ResourceKey, Optional<Registry>> build() {
             try {
-                return ScopedValue.where(CommonImpl.SKIP_REGISTRY_VALIDATION, true).call(() ->
-                    VanillaRegistriesAccessor.getRELOADABLE_BUILDER().build(VanillaRegistriesAccessor.getWORLD_BUILDER().build(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)))
-                            .listRegistries().map(lookup -> {
-                                if (BuiltInRegistries.REGISTRY.containsKey((ResourceKey) lookup.key())) {
-                                    return BuiltInRegistries.REGISTRY.getValue((ResourceKey) lookup.key());
-                                }
-                                var reg = new MappedRegistry<>((ResourceKey) lookup.key(), lookup.registryLifecycle());
-
-                                lookup.listElements().forEach(entry -> {
-                                    if (!reg.containsKey(entry.key()) && entry.isBound() && reg.getKey(entry.value()) == null) {
-                                        reg.register(entry.key(), entry.value(), RegistrationInfo.BUILT_IN);
-                                    }
-                                });
-
-                                return reg;
-                            }).collect(Collectors.toMap(Registry::key, Optional::of))
-                );
+                return ScopedValue.where(CommonImpl.SKIP_REGISTRY_VALIDATION, true).call(() -> {
+                    var world = VanillaRegistriesAccessor.getWORLD_BUILDER().build(
+                            RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+                    return VanillaRegistriesAccessor.getRELOADABLE_BUILDER().build(world)
+                            .listRegistries()
+                            .map(FallbackRegistries::copy)
+                            .collect(Collectors.toMap(Registry::key, Optional::of));
+                });
             } catch (Throwable e) {
-                CommonImpl.LOGGER.error("Creating the fallback registries for the fake world failed, it will have none...", e);
+                CommonImpl.LOGGER.error("Creating fake world fallback registries failed...", e);
                 return Map.of();
             }
+        }
+
+        // Copies a bootstrapped lookup into a registry, or returns the built-in one when it exists.
+        private static Registry copy(HolderLookup.RegistryLookup lookup) {
+            var key = (ResourceKey) lookup.key();
+            if (BuiltInRegistries.REGISTRY.containsKey(key)) {
+                return BuiltInRegistries.REGISTRY.getValue(key);
+            }
+            var reg = new MappedRegistry<>(key, lookup.registryLifecycle());
+
+            lookup.listElements().forEach(entry -> {
+                if (!reg.containsKey(entry.key()) && entry.isBound()
+                        && reg.getKey(entry.value()) == null) {
+                    reg.register(entry.key(), entry.value(), RegistrationInfo.BUILT_IN);
+                }
+            });
+
+            return reg;
         }
     }
 
