@@ -1,5 +1,6 @@
 package eu.pb4.polymer.core.api.item;
 
+import com.google.common.collect.MapMaker;
 import eu.pb4.polymer.common.impl.CompatStatus;
 import eu.pb4.polymer.core.api.block.BlockMapper;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
@@ -65,7 +66,8 @@ public final class PolymerBlockItemStandIns {
      */
     public static final boolean PIN_UNSTABLE = Boolean.parseBoolean(System.getProperty("polymer.standIns.pinUnstable", "false"));
 
-    private static final Map<Key, Decision> CACHE = new ConcurrentHashMap<>();
+    // Weak in the mapper, so a mapper built per player or per reset does not outlive its connection here.
+    private static final Map<BlockMapper, Map<Key, Decision>> CACHE = new MapMaker().weakKeys().makeMap();
     private static final Map<Class<?>, Boolean> SURVIVAL_RULES = new ConcurrentHashMap<>();
     private static final List<Predicate<BlockState>> INVISIBLE = new CopyOnWriteArrayList<>();
     private static final List<BiPredicate<SoundEvent, PacketContext>> MUTED = new CopyOnWriteArrayList<>();
@@ -81,13 +83,14 @@ public final class PolymerBlockItemStandIns {
      * @param context context it is sent in, or null for none
      */
     public static Decision get(BlockItem item, @Nullable PacketContext context) {
-        var key = new Key(item.getBlock(), BlockMapper.getFrom(context), hasMainPack(context));
-        var cached = CACHE.get(key);
+        var byMapper = CACHE.computeIfAbsent(BlockMapper.getFrom(context), mapper -> new ConcurrentHashMap<>());
+        var key = new Key(item.getBlock(), hasMainPack(context));
+        var cached = byMapper.get(key);
         if (cached != null) {
             return cached;
         }
         var decision = decide(item, context, 2).decision();
-        CACHE.put(key, decision);
+        byMapper.put(key, decision);
         return decision;
     }
 
@@ -268,7 +271,7 @@ public final class PolymerBlockItemStandIns {
         });
     }
 
-    private record Key(Block block, BlockMapper mapper, boolean pack) {
+    private record Key(Block block, boolean pack) {
     }
 
     /** The first test a block failed, in the order they run. */

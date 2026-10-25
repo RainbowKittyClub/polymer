@@ -16,7 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(BlockItem.class)
 public abstract class BlockItemMixin {
-    // The place sound leaves the placer out exactly when their client played its own; no lift may change that.
+    // The place sound leaves the placer out exactly when their client played that same sound itself (one that sounded
+    // different, from a stand-in unlike the real block, reaches the placer too); no lift may change that.
     @WrapOperation(method = "place(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/InteractionResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;playSound(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FF)V"))
     private void polymer$followClientPlaceSound(Level level, Entity source, BlockPos pos, SoundEvent sound, SoundSource category, float volume, float pitch, Operation<Void> original, @Local(argsOnly = true) BlockPlaceContext context) {
         var click = ClientBlockClick.current();
@@ -26,7 +27,7 @@ public abstract class BlockItemMixin {
         }
         ClientBlockClick.markPlaced(pos);
         try (var ignored = ClientBlockClick.finalExclusion()) {
-            original.call(level, click.heardOwnSound() ? context.getPlayer() : null, pos, sound, category, volume, pitch);
+            original.call(level, click.heardOwnSound(sound) ? context.getPlayer() : null, pos, sound, category, volume, pitch);
         }
     }
 }
