@@ -122,7 +122,7 @@ public final class FakeWorld extends Level implements LightChunk {
         }
 
         // Copies a bootstrapped lookup into a registry, or returns the built-in one when it exists.
-        private static Registry copy(HolderLookup.RegistryLookup lookup) {
+        private static Registry copy(HolderLookup.RegistryLookup<?> lookup) {
             var key = (ResourceKey) lookup.key();
             if (BuiltInRegistries.REGISTRY.containsKey(key)) {
                 return BuiltInRegistries.REGISTRY.getValue(key);
