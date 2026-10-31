@@ -101,7 +101,7 @@ public final class BulkFixture implements ModInitializer {
             for (String operation : List.of("run", "prepare", "publish", "restart", "watched", "unwatched", "unloaded", "lit",
                     "focused", "recipientfault", "recipientrestore", "disconnectprepare", "disconnectpublished",
                     "unloadprepare", "pendingunloaded", "pendingreload", "tickprepare", "tickheld", "tickpublished",
-                    "manualattach")) {
+                    "manualattach", "touchbe")) {
                 root.then(Commands.literal(operation).executes(context -> {
                     try {
                         var level = context.getSource().getLevel();
@@ -136,6 +136,8 @@ public final class BulkFixture implements ModInitializer {
                                 eq("manual-attachment-present", ((eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder) observedChunk).polymerVE$getHolders().stream()
                                         .anyMatch(attachment -> !(attachment instanceof BlockBoundAttachment)), true);
                             }
+                            case "touchbe" -> Objects.requireNonNull(level.getBlockEntity(origin.offset(3, 0, 0)),
+                                    "fixture chest present").setChanged();
                             case "tickprepare" -> {
                                 var tickPos = origin.offset(6, 0, 0);
                                 level.setBlock(tickPos, Blocks.JUNGLE_LOG.defaultBlockState(), 3);
@@ -532,6 +534,21 @@ public final class BulkFixture implements ModInitializer {
             token.reconcile(); token.publish();
         }
         negative("withheld-add-mutation", () -> eq("add-holder", BlockBoundAttachment.get(omittedChunk, omitted) != null, true));
+
+        // A block-entity setChanged (chunk-wide revision bump) between reconcile and publication
+        // must not fail publication: enforcement is scoped to the reserved sections.
+        var pokePos = origin.offset(576, 0, 0);
+        var pokeChunk = level.getChunkAt(pokePos);
+        level.setBlock(pokePos, Blocks.CHEST.defaultBlockState(), 3);
+        level.setBlock(pokePos.offset(0, 0, 1), Blocks.CHEST.defaultBlockState(), 3);
+        var surviving = (ChestBlockEntity) level.getBlockEntity(pokePos.offset(0, 0, 1));
+        var pokeToken = replace(pokeChunk, Map.of(pokePos, Blocks.OAK_LOG.defaultBlockState()));
+        surviving.setChanged();
+        pokeToken.publish();
+        pokeToken.close();
+        released(pokeChunk, false);
+        eq("be-setchanged-no-publish-block", ((BulkChunkAccess) pokeChunk).polymer$bulkQuarantined(), false);
+        eq("be-setchanged-applied", pokeChunk.getBlockState(pokePos).is(Blocks.OAK_LOG), true);
     }
 
     private static void identity(LevelChunk chunk, BlockPos pos, ElementHolder holder) {

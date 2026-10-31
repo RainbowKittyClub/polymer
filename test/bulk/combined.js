@@ -63,7 +63,8 @@ async function client (rig, port, name) {
 async function main () {
   let lease, rig, rcon, server, failure
   const records = []
-  const report = { accepted: false, scope: 'combined FAWE coordinated direct-section + Polymer reconciliation, not full S7 or S12', negativeControls: [] }
+  // `status` carries the gate result; acceptance is a separate human verdict (acceptance-accounting.json).
+  const report = { scope: 'combined FAWE coordinated direct-section + Polymer reconciliation, not full S7 or S12', negativeControls: [] }
   const manifestFile = path.join(__dirname, 'combined-manifest.json')
   const manifest = json(manifestFile)
   const sourcePaths = fs.readFileSync(path.join(evidence, 'changed-files.txt'), 'utf8').trim().split('\n')

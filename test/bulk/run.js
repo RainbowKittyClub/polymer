@@ -125,7 +125,8 @@ async function client (rig, port, name) {
 async function main () {
   let lease, rig, rcon, server, failure
   const records = []
-  const report = { accepted: false, scope: ordinary ? 'ordinary installed reference/candidate differential' : focused ? 'focused API continuation' : 'Polymer API proof, not full S7 or S12', negativeControls: [] }
+  // `status` carries the gate result; acceptance is a separate human verdict (acceptance-accounting.json).
+  const report = { scope: ordinary ? 'ordinary installed reference/candidate differential' : focused ? 'focused API continuation' : 'Polymer API proof, not full S7 or S12', negativeControls: [] }
   const manifestFile = path.join(__dirname, 'manifest.json')
   const manifest = json(manifestFile)
   const sourcePaths = fs.readFileSync(path.join(evidence, 'changed-files.txt'), 'utf8').trim().split('\n')
@@ -199,7 +200,17 @@ async function main () {
     assert.match(await send('bulktest prepare'), /bulk-ok prepare/)
     const held = await one.send({ action: 'snapshot' })
     assert.deepEqual(held.displays.sort(), before.displays.sort())
-    await rig.wait('native light completion', async () => /bulk-ok lit/.test(await send('bulktest lit')), 30000)
+    // Poke a block-entity setChanged (chunk-wide revision bump, as a ticking furnace would)
+    // between reconciliation and publication while the token awaits lighting.
+    await (async () => {
+      const deadline = Date.now() + 30000
+      for (;;) {
+        await send('bulktest touchbe')
+        if (/bulk-ok lit/.test(await send('bulktest lit'))) return
+        if (Date.now() > deadline) throw new Error('Timeout waiting for native light completion')
+        await new Promise(resolve => setTimeout(resolve, 400))
+      }
+    })()
     assert.match(await send('bulktest publish'), /bulk-ok publish/)
     let first, second
     await rig.wait('new display after publication', async () => { first = await one.send({ action: 'snapshot' }); return first.displays.length === before.displays.length + 1 }, 30000)
