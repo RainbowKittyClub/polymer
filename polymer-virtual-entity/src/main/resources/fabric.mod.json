@@ -17,6 +17,7 @@
   "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
+    "polymer:bulk_edits": ["eu.pb4.polymer.virtualentity.impl.VirtualBulkEdits"],
     "main": ["eu.pb4.polymer.virtualentity.impl.VirtualEntityMod"]
   },
   "accessWidener": "polymer-virtual-entity.accesswidener",

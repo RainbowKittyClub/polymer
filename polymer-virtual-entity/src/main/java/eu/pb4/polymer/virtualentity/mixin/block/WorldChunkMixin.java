@@ -3,6 +3,7 @@ package eu.pb4.polymer.virtualentity.mixin.block;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
+import eu.pb4.polymer.virtualentity.impl.BlockHolderLifecycle;
 import eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder;
 import eu.pb4.polymer.virtualentity.impl.HolderHolder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -86,37 +87,13 @@ public abstract class WorldChunkMixin extends ChunkAccess implements HolderAttac
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Ljava/lang/Object;)Z", ordinal = 0))
     private void polymerVE$removeOld(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
-        var x = this.polymerVE$posHolders.get(pos);
-        if (x != null) {
-            if (x.getBlockState().getBlock() != state.getBlock() && !this.polymerVE$keepsHolder(x, pos, state)) {
-                this.polymerVE$removePosHolder(pos);
-            } else {
-                x.setBlockState(state);
-            }
-        }
-    }
-
-    @Unique
-    private boolean polymerVE$keepsHolder(BlockBoundAttachment attachment, BlockPos pos, BlockState state) {
-        var creator = BlockWithElementHolder.get(state);
-        // Only a live holder that matches a fresh one's offset and ticking
-        return creator != null && this.level instanceof ServerLevel world
-                && attachment.holder().getAttachment() == attachment
-                && attachment.shouldTick() == creator.tickElementHolder(world, pos, state)
-                && attachment.getPos().equals(Vec3.atCenterOf(pos).add(creator.getElementHolderOffset(world, pos, state)))
-                && creator.keepElementHolder(world, pos, attachment.getBlockState(), state, attachment.holder());
+        var chunk = (LevelChunk) (Object) this;
+        BlockHolderLifecycle.apply(chunk, BlockHolderLifecycle.prepare(chunk, pos, state), true);
     }
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;isClientSide()Z", ordinal = 1, shift = At.Shift.BEFORE))
     private void polymerVE$addNew(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
-        var x = this.polymerVE$posHolders.get(pos);
-        var blockWithElementHolder = BlockWithElementHolder.get(state);
-        if (x == null && blockWithElementHolder != null && this.level instanceof ServerLevel serverWorld) {
-            var holder = blockWithElementHolder.createElementHolder(serverWorld, pos, state);
-            if (holder != null) {
-                new BlockBoundAttachment(holder, (LevelChunk) (Object) this, state, pos.immutable(), Vec3.atCenterOf(pos).add(blockWithElementHolder.getElementHolderOffset(serverWorld, pos, state)), blockWithElementHolder.tickElementHolder(serverWorld, pos, state));
-            }
-        }
+        BlockHolderLifecycle.create((LevelChunk) (Object) this, pos, state);
     }
 
     @Inject(method = "setLoaded", at = @At("TAIL"))

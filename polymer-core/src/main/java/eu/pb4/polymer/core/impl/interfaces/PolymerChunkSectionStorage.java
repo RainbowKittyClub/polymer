@@ -9,6 +9,8 @@ import net.minecraft.core.SectionPos;
 
 @ApiStatus.Internal
 public interface PolymerChunkSectionStorage {
+    void polymer$clear();
+
     ShortSet polymer$getBackendSet();
 
     Iterator<BlockPos.MutableBlockPos> polymer$blockIterator(SectionPos sectionPos);
