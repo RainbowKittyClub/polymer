@@ -32,6 +32,8 @@ public final class PolymerBulkEdits {
      * Section numbers are absolute Y coordinates, not array indexes. Proposed states only inform
      * pre-mutation holder decisions; reconciliation independently reads committed states and NBT.
      * The caller owns tickets, exclusive mutation, lighting, vanilla metadata and callback safety.
+     * Snapshotting serializes block-entity NBT per reserved cell and runs three full passes per
+     * token (prepare, reconcile, publication revalidation); reserve sections accordingly.
      */
     public static Token prepare(LevelChunk chunk, Set<Integer> sections, Map<BlockPos, BlockState> proposed) {
         var level = owner(chunk);
@@ -119,7 +121,6 @@ public final class PolymerBulkEdits {
         private Map<Integer, SectionStamp> sectionStamps;
         private List<Change> changes = List.of();
         private Set<BlockPos> changedPositions = Set.of();
-        private long revision;
         private Phase phase = Phase.PREPARED;
         private boolean sending;
         private boolean cleaned;
@@ -163,7 +164,6 @@ public final class PolymerBulkEdits {
                 for (var session : this.sessions) {
                     session.reconcile(this.changes);
                 }
-                this.revision = ((BulkChunkAccess) this.chunk).polymer$bulkRevision();
                 this.sectionStamps = stamps(this.chunk, this.sections);
                 this.phase = Phase.RECONCILED;
                 return this.changes;
@@ -184,8 +184,12 @@ public final class PolymerBulkEdits {
             }
             require(Phase.RECONCILED);
             try {
-                if (((BulkChunkAccess) this.chunk).polymer$bulkRevision() != this.revision
-                        || !this.sectionStamps.equals(stamps(this.chunk, this.sections))
+                // Reserved-scope revalidation only: section identity/revision catches in-place and
+                // ABA state writes; the final state/NBT snapshot catches block-entity lifecycle and
+                // payload changes. Chunk-wide block-entity setChanged bumps (e.g. a furnace ticking
+                // anywhere in the chunk during the caller's awaited lighting) are outside the owned
+                // scope and must not fail publication.
+                if (!this.sectionStamps.equals(stamps(this.chunk, this.sections))
                         || !this.after.equals(snapshot(this.chunk, this.sections))) {
                     throw new IllegalStateException("Chunk changed while awaiting publication");
                 }
