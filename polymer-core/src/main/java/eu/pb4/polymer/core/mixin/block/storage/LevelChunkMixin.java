@@ -1,8 +1,7 @@
 package eu.pb4.polymer.core.mixin.block.storage;
 
 import com.google.common.collect.ForwardingIterator;
-import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.impl.PolymerImplUtils;
+import eu.pb4.polymer.core.impl.PolymerSectionIndex;
 import eu.pb4.polymer.core.impl.interfaces.PolymerChunkStorage;
 import eu.pb4.polymer.core.impl.interfaces.PolymerChunkSectionStorage;
 import net.minecraft.core.BlockPos;
@@ -51,22 +50,8 @@ public abstract class LevelChunkMixin extends ChunkAccess implements PolymerChun
     @Unique
     private void polymer$generatePolymerBlockSet() {
         for (var section : this.getSections()) {
-            if (section != null && !section.hasOnlyAir()) {
-                var container = section.getStates();
-                if (container.maybeHas(PolymerImplUtils.POLYMER_STATES::contains)) {
-                    var storage = (PolymerChunkSectionStorage) section;
-                    BlockState state;
-                    for (byte x = 0; x < 16; x++) {
-                        for (byte z = 0; z < 16; z++) {
-                            for (byte y = 0; y < 16; y++) {
-                                state = container.get(x, y, z);
-                                if (PolymerImplUtils.POLYMER_STATES.contains(state)) {
-                                    storage.polymer$setSynced(x, y, z, PolymerBlockUtils.forceLightUpdates(state), PolymerBlockUtils.forceLightInsideBlock(state));
-                                }
-                            }
-                        }
-                    }
-                }
+            if (section != null) {
+                PolymerSectionIndex.rebuild(section, false);
             }
         }
 
@@ -75,11 +60,8 @@ public abstract class LevelChunkMixin extends ChunkAccess implements PolymerChun
 
     @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunkSection;setBlockState(IIILnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/state/BlockState;", shift = At.Shift.AFTER))
     private void polymer$addToList(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
-        if (PolymerImplUtils.POLYMER_STATES.contains(state)) {
-            this.polymer$setSynced(pos.getX(), pos.getY(), pos.getZ(), PolymerBlockUtils.forceLightUpdates(state), PolymerBlockUtils.forceLightInsideBlock(state));
-        } else {
-            this.polymer$removeSynced(pos.getX(), pos.getY(), pos.getZ());
-        }
+        PolymerSectionIndex.update(this.getSection(this.getSectionIndex(pos.getY())),
+                pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state);
     }
 
     @Override

@@ -1,0 +1,11 @@
+Non-shipped test harness provenance
+
+NativeDriverMixin's file-controlled frame loop and the native client provisioning sequence
+are adapted from the task-owned FabricAsyncWorldEdit S6 worktree at
+1bbed416abbb9d6d5c11da1c9b3278634c6edab3 (GPL-3.0 project):
+worldedit-fabric/src/testmod/java/com/fastasyncworldedit/testharness/NativeDriverMixin.java
+and test/harness/native.js. No FAWE implementation is installed by these tests.
+
+The resource guard, RCON helper, display lease allocator and native classpath helper are
+reused read-only from that worktree. Its notices and source remain there unchanged.
+All generated output is directed to this Polymer worktree or this run's marked scratch root.

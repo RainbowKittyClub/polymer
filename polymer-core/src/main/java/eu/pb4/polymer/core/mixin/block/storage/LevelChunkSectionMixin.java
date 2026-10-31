@@ -21,7 +21,15 @@ public class LevelChunkSectionMixin implements PolymerChunkSectionStorage {
     @Unique
     private final ShortSet polymer$lightInsides = new ShortOpenHashSet();
     @Unique
-    private boolean polymer$requireLightUpdate;;
+    private boolean polymer$requireLightUpdate;
+
+    @Override
+    public void polymer$clear() {
+        this.polymer$requireLightUpdate |= !this.polymer$lights.isEmpty() || !this.polymer$lightInsides.isEmpty();
+        this.polymer$blocks.clear();
+        this.polymer$lights.clear();
+        this.polymer$lightInsides.clear();
+    }
 
     @Override
     public ShortSet polymer$getBackendSet() {
@@ -63,9 +71,13 @@ public class LevelChunkSectionMixin implements PolymerChunkSectionStorage {
         this.polymer$blocks.add(i);
         if (lightSource) {
             this.polymer$lights.add(i);
+        } else if (this.polymer$lights.remove(i)) {
+            this.polymer$requireLightUpdate = true;
         }
         if (lightInside) {
             this.polymer$lightInsides.add(i);
+        } else if (this.polymer$lightInsides.remove(i)) {
+            this.polymer$requireLightUpdate = true;
         }
     }
 
@@ -73,7 +85,9 @@ public class LevelChunkSectionMixin implements PolymerChunkSectionStorage {
     public void polymer$removeSynced(int x, int y, int z) {
         var i = PolymerChunkSectionStorage.pack(x, y, z);
         this.polymer$blocks.remove(i);
-        if (this.polymer$lights.remove(i) || this.polymer$lightInsides.remove(i)) {
+        boolean lightRemoved = this.polymer$lights.remove(i);
+        boolean insideRemoved = this.polymer$lightInsides.remove(i);
+        if (lightRemoved || insideRemoved) {
             this.polymer$requireLightUpdate = true;
         }
     }

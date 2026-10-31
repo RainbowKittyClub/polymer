@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"polymer-bulk-test","version":"1.0.0","name":"Polymer bulk fixture (not shipped)","environment":"server","entrypoints":{"main":["eu.pb4.polymer.bulktest.BulkFixture"]},"depends":{"polymer-core":"*","polymer-virtual-entity":"*","fabric-api":"*"}}

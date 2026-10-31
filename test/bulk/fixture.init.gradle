@@ -1,0 +1,36 @@
+allprojects {
+    afterEvaluate {
+        if (project == rootProject) {
+            sourceSets {
+                bulkTest {
+                    java.srcDir 'test/bulk/java'
+                    resources.srcDir 'test/bulk/resources'
+                    compileClasspath += sourceSets.main.compileClasspath
+                    runtimeClasspath += sourceSets.main.runtimeClasspath
+                }
+                bulkOrdinary {
+                    java.srcDir 'test/bulk/ordinary/java'
+                    resources.srcDir 'test/bulk/ordinary/resources'
+                    compileClasspath += sourceSets.main.compileClasspath
+                }
+                bulkNative {
+                    java.srcDir 'test/bulk/native/java'
+                    resources.srcDir 'test/bulk/native/resources'
+                    compileClasspath += sourceSets.main.compileClasspath
+                }
+            }
+            tasks.register('bulkTestJar', Jar) {
+                archiveClassifier = 'bulk-test'
+                from sourceSets.bulkTest.output
+            }
+            tasks.register('bulkOrdinaryJar', Jar) {
+                archiveClassifier = 'bulk-ordinary'
+                from sourceSets.bulkOrdinary.output
+            }
+            tasks.register('bulkNativeJar', Jar) {
+                archiveClassifier = 'bulk-native'
+                from sourceSets.bulkNative.output
+            }
+        }
+    }
+}
