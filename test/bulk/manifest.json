@@ -844,7 +844,7 @@
       "nested": []
     },
     "reference": {
-      "path": "/home/kgadberry/projects/minecraft-dev/rkc/forks/polymer/.claude/worktrees/fawe-fast-editing-20261029-s7/handoff/s7-polymer/artifacts/reference/polymer-bundled-0.18.6+26.3.jar",
+      "path": "/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer/artifacts/reference/polymer-bundled-0.18.6+26.3.jar",
       "id": "polymer-bundled",
       "version": "0.18.6+26.3",
       "sha256": "6bcacc5db6e6da7f9b64e06f48cbfeae0333220d9dcbb5968b64a289385a9b6d",

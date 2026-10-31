@@ -3,12 +3,12 @@
 const path = require('node:path')
 const fs = require('node:fs')
 const { spawn } = require('node:child_process')
-// Read-only reuse of the accepted S6 guard; all output stays in this worktree.
+// Read-only reuse of the accepted S6 guard; all output goes to the scratchpad evidence tree.
 const { SingleLaneLease, RESOURCE_POLICY, ResourceGuard, admitResources, admissionSample, startTime, writeJson } = require('/home/kgadberry/projects/minecraft-dev/rkc/forks/FabricAsyncWorldEdit/.claude/worktrees/wf_6f7c091d-06c-3/test/harness/rig.js')
 
 async function main () {
   const repo = path.resolve(__dirname, '../..')
-  const evidence = path.join(repo, 'handoff/s7-polymer')
+  const evidence = process.env.POLYMER_S7_EVIDENCE || '/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer'
   fs.mkdirSync(evidence, { recursive: true })
   const recordFile = path.join(evidence, `build-${Date.now()}.json`)
   const record = { resourcePolicy: RESOURCE_POLICY, admissionSamples: [], launched: false }

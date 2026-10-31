@@ -10,6 +10,7 @@ const { DisplayLease } = require(prior + 'display')
 const { Rcon } = require(prior + 'rcon')
 const { classpath, offlineUuid } = require(prior + 'native')
 const repo = path.resolve(__dirname, '../..')
+const evidence = process.env.POLYMER_S7_EVIDENCE || '/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer'
 const ordinary = process.argv.includes('--ordinary')
 const reference = process.argv.includes('--reference')
 const focused = process.argv.includes('--focused')
@@ -127,12 +128,12 @@ async function main () {
   const report = { accepted: false, scope: ordinary ? 'ordinary installed reference/candidate differential' : focused ? 'focused API continuation' : 'Polymer API proof, not full S7 or S12', negativeControls: [] }
   const manifestFile = path.join(__dirname, 'manifest.json')
   const manifest = json(manifestFile)
-  const sourcePaths = fs.readFileSync(path.join(repo, 'handoff/s7-polymer/changed-files.txt'), 'utf8').trim().split('\n')
+  const sourcePaths = fs.readFileSync(path.join(evidence, 'changed-files.txt'), 'utf8').trim().split('\n')
   for (const entry of fs.readdirSync(__dirname, { recursive: true, withFileTypes: true })) {
     if (entry.isFile()) sourcePaths.push(path.relative(repo, path.join(entry.parentPath, entry.name)))
   }
   report.sourceHashes = Object.fromEntries([...new Set(sourcePaths)].sort().map(name => [name, hash(path.join(repo, name))]))
-  const reportFile = path.join(repo, 'handoff/s7-polymer', `runtime-${Date.now()}.json`)
+  const reportFile = path.join(evidence, `runtime-${Date.now()}.json`)
   try {
     lease = new SingleLaneLease()
     const admission = await admitResources()
