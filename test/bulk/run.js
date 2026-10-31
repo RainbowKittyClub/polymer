@@ -143,7 +143,10 @@ async function main () {
     fs.mkdirSync(path.join(dir, 'config/polymer'), { recursive: true })
     report.artifacts = manifest.artifacts
     if (reference && !ordinary) throw new Error('Reference is ordinary-only; never loads the bulk API fixture')
-    for (const [name, key] of [['polymer', reference ? 'reference' : 'polymer'], ['fixture', ordinary ? 'ordinary' : 'fixture'], ['fabric', 'fabric']]) {
+    // Manifest-driven mod list; legacy manifests fall back to the original three-mod layout.
+    const modsList = manifest.mods || [['polymer', reference ? 'reference' : 'polymer'],
+      ['fixture', ordinary ? 'ordinary' : 'fixture'], ['fabric', 'fabric']]
+    for (const [name, key] of modsList) {
       fs.copyFileSync(verify(manifest.artifacts[key]), path.join(dir, `mods/${name}.jar`))
     }
     writeJson(path.join(dir, 'config/polymer/auto-host.json'), { enabled: true, required: false, mod_override: false, resource_pack_status_dialog: false, allow_joining_after_generation_failure: false })

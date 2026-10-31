@@ -100,7 +100,8 @@ public final class BulkFixture implements ModInitializer {
             var root = Commands.literal("bulktest");
             for (String operation : List.of("run", "prepare", "publish", "restart", "watched", "unwatched", "unloaded", "lit",
                     "focused", "recipientfault", "recipientrestore", "disconnectprepare", "disconnectpublished",
-                    "unloadprepare", "pendingunloaded", "pendingreload", "tickprepare", "tickheld", "tickpublished")) {
+                    "unloadprepare", "pendingunloaded", "pendingreload", "tickprepare", "tickheld", "tickpublished",
+                    "manualattach")) {
                 root.then(Commands.literal(operation).executes(context -> {
                     try {
                         var level = context.getSource().getLevel();
@@ -127,6 +128,13 @@ public final class BulkFixture implements ModInitializer {
                                 negative("leaked-disconnected-watcher", () -> eq("disconnect-current-recipient-only", watchers.size(), 1));
                                 watchers.remove(disconnected);
                                 released(observedChunk, false);
+                            }
+                            case "manualattach" -> {
+                                observedChunk = level.getChunkAt(origin);
+                                new eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment(
+                                        new ElementHolder(), observedChunk, Vec3.atCenterOf(origin.offset(7, 0, 0)), false);
+                                eq("manual-attachment-present", ((eu.pb4.polymer.virtualentity.impl.HolderAttachmentHolder) observedChunk).polymerVE$getHolders().stream()
+                                        .anyMatch(attachment -> !(attachment instanceof BlockBoundAttachment)), true);
                             }
                             case "tickprepare" -> {
                                 var tickPos = origin.offset(6, 0, 0);

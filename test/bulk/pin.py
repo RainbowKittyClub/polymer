@@ -23,6 +23,7 @@ def pin(path):
 prior = json.loads(PRIOR.read_text())
 manifest = {key: prior[key] for key in ['minecraft', 'loader', 'eula', 'seed']}
 manifest['runLabel'] = 'polymer-s7-api'
+manifest['mods'] = [['polymer', 'polymer'], ['fixture', 'fixture'], ['fabric', 'fabric']]
 manifest['priorManifest'] = {'path': str(PRIOR), 'sha256': digest(PRIOR.read_bytes())}
 manifest['artifacts'] = {
     'polymer': pin(ROOT / 'build/libs/polymer-bundled-0.18.6-fawe-s7.1+26.3.jar'),
