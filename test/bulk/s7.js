@@ -282,32 +282,32 @@ async function main () {
     two = await join('polymertwo')
     await settle('restart', 60000)
 
-    // Observation, not an oracle: WorldEdit commands commit one cell at a time, so an unsupported block
-    // mid-paste stops the operation after earlier cells may have been written. Record what happened.
+    // Unsupported block mid-paste: WorldEdit commits per cell, skips the sign, writes the rest and
+    // reports the skipped cell once. The ordinary mirror is clone, then the sign cell put back.
     const marks = () => Object.fromEntries(rig.children.map(entry => [entry.log, fs.statSync(entry.log).size]))
     await coordinated('set stone'); await send(`fill ${B.x1} ${Y} ${Z} ${B.x2} ${Y} ${Z} minecraft:stone strict`); both(row('minecraft:stone'))
     await settle('before-unsupported-paste')
     await setRow(C, UNSUPPORTED, { [SIGN]: SIGN_DATA })
-    const unsupported = { label: 'unsupported-paste', start: marks() }
+    const signAt = UNSUPPORTED.indexOf(SIGN)
     const chatStart = fs.statSync(one.entry.log).size
     await send(stand(C))
     await select(C)
     await chat('/copy', /copied|\d+ blocks affected/)
     await send(stand(A))
-    await chat('/paste', /pasted|\d+ blocks affected|report this error|REFUSED|lifecycle/i)
+    await chat('/paste', /Skipped 1 unsupported block/)
     await send(`tp polymerone ${VIEW}`)
-    const pasted = await clock()
-    await rig.wait('unsupported paste quiet', async () => await clock() >= pasted + 40, 15000, [server])
-    const written = []
-    for (let i = 0; i < WIDTH; i++) written.push(await send(`execute if block ${A.x1 + i} ${Y} ${Z} ${UNSUPPORTED[i]}`) === 'Test passed')
-    unsupported.end = marks()
-    windows.push(unsupported)
-    report.observations = { unsupportedPaste: { source: UNSUPPORTED, written,
-      messages: fs.readFileSync(one.entry.log).subarray(chatStart).toString('utf8').split('\n').filter(line => line.includes('[CHAT]') && !line.includes('[Rcon:')) } }
+    assert.match(await send(`clone ${C.x1} ${Y} ${Z} ${C.x2} ${Y} ${Z} ${B.x1} ${Y} ${Z} strict`), /Successfully cloned/)
+    assert.match(await send(`setblock ${B.x1 + signAt} ${Y} ${Z} minecraft:stone strict`), /Changed the block/)
+    model.coordinated = UNSUPPORTED.map(state => state === SIGN ? 'minecraft:stone' : state)
+    model.ordinary = [...model.coordinated]
+    const pasteChat = fs.readFileSync(one.entry.log).subarray(chatStart).toString('utf8').split('\n')
+      .filter(line => line.includes('[CHAT]') && !line.includes('[Rcon:'))
+    const summary = pasteChat.find(line => line.includes('Skipped 1 unsupported block'))
+    assert.ok(summary.includes(`minecraft:oak_sign`) && summary.includes(`${A.x1 + signAt},${Y},${Z}`), `skip summary lacks the cell: ${summary}`)
+    assert.ok(!pasteChat.some(line => /report this error|Exception/.test(line)), 'unsupported paste surfaced an error')
+    report.observations = { unsupportedPaste: { source: UNSUPPORTED, messages: pasteChat } }
+    await settle('unsupported-paste-skips')
     await setRow(C, SOURCE, { [CHEST]: CHEST_DATA })
-    // Whatever the paste left behind, a coordinated edit must still succeed in that chunk.
-    await coordinated('set stone'); await send(`fill ${B.x1} ${Y} ${Z} ${B.x2} ${Y} ${Z} minecraft:stone strict`); both(row('minecraft:stone'))
-    await settle('after-unsupported-paste')
 
     // Negative control 1: the fixture ignores the recipient's pack; the independent oracle must catch it.
     await coordinated('set stone'); await send(`fill ${B.x1} ${Y} ${Z} ${B.x2} ${Y} ${Z} minecraft:stone strict`); both(row('minecraft:stone'))
@@ -331,10 +331,12 @@ async function main () {
     await negative(report, 'skip-polymer-reconciliation', () => settle('reconcile-fault', 15000))
     assert.match(await send('fawepublish fault-skip-reconcile false'), /"skipReconcile":false/)
     // Detection must come from Polymer's own guard: it refuses to publish and drops every watcher.
-    const faultLog = fs.readFileSync(server.log).subarray(reconcileFault.start[server.log]).toString('utf8')
-    for (const name of ['polymerone', 'polymertwo']) {
-      assert.ok(faultLog.includes(`${name} lost connection: Bulk edit finalization failed; chunk requires reload`),
-        `${name} was not dropped by Polymer's finalization guard`)
+    // Each client logs the reason it received; the server may log a client that closed first as plain
+    // "Disconnected", so the client side is the witness.
+    for (const watcher of [one, two]) {
+      await rig.wait(`${watcher.name} disconnect reason`, () => fs.readFileSync(watcher.entry.log)
+        .subarray(reconcileFault.start[watcher.entry.log]).toString('utf8')
+        .includes('Client disconnected with reason: Bulk edit finalization failed; chunk requires reload'), 15000)
     }
     report.negativeControls.at(-1).mechanism = 'Polymer refused to publish an unreconciled token and disconnected both watchers'
 

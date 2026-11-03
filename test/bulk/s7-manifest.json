@@ -827,8 +827,8 @@
       ]
     },
     "fawe": {
-      "path": "/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer/artifacts/fawe/f39bded5c/worldedit-fabric-mc26.3-2.16.2-SNAPSHOT-dist.jar",
-      "sha256": "53c2cd9653ec4d18e16f7e6614ba756ff4db0ed0b5cc9baf333f487655be2e36"
+      "path": "/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer/artifacts/fawe/673cd21b9/worldedit-fabric-mc26.3-2.16.2-SNAPSHOT-dist.jar",
+      "sha256": "bd510236da77e9961cf9931af3a5b1ee293a857acdd4c2b065a0460120169724"
     },
     "fixture": {
       "path": "/home/kgadberry/projects/minecraft-dev/rkc/forks/polymer/.claude/worktrees/fawe-fast-editing-20261029-s7/build/libs/polymer-bundled-0.18.6-fawe-s7.1+26.3-bulk-test.jar",
@@ -1161,7 +1161,7 @@
       ]
     },
     "fawetest": {
-      "path": "/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer/artifacts/fawe/f39bded5c/worldedit-fabric-mc26.3-2.16.2-SNAPSHOT-testmod.jar",
+      "path": "/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer/artifacts/fawe/673cd21b9/worldedit-fabric-mc26.3-2.16.2-SNAPSHOT-testmod.jar",
       "sha256": "2010dbc97b1208ef4ef5a009e47704fe66543cfcfd84d8b1d2503fa69b7f9b29"
     },
     "s7probe": {
