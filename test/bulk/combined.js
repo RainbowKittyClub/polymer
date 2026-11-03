@@ -22,28 +22,33 @@ const evidence = process.env.POLYMER_S7_EVIDENCE || '/mnt/WORKSPACE/scratchpad/f
 const LAMP = 'minecraft:redstone_lamp[lit=true]'
 const CELLS = [[3200, 80, 3200, 'oak'], [3202, 80, 3200, 'birch'], [3201, 80, 3200, 'lamp']]
 
-async function client (rig, port, name) {
+// `extra` lets other suites add client mods and JVM properties; `dir` names a fresh game dir per join.
+async function client (rig, port, name, extra = {}) {
   if (!process.env.TMPDIR) throw new Error('TMPDIR required')
+  const label = extra.dir || name
   const temp = fs.mkdtempSync(path.join(process.env.TMPDIR, 'polymer-native-'))
   fs.chmodSync(temp, 0o700); rig.tempDirs.push(temp)
   const auth = path.join(temp, 'Xauthority')
   fs.writeFileSync(auth, '', { mode: 0o600 })
   const lease = new DisplayLease(); rig.displays.push(lease)
   tool('xauth', ['-f', auth, 'add', `:${lease.number}`, '.', crypto.randomBytes(16).toString('hex')])
-  writeJson(path.join(rig.root, `display-${name}.json`), { number: lease.number, before: lease.before })
+  writeJson(path.join(rig.root, `display-${label}.json`), { number: lease.number, before: lease.before })
   lease.beforeSpawn()
-  const display = rig.spawn(`display-${name}`, 'Xvfb', [`:${lease.number}`, '-screen', '0', '854x480x24', '-nolisten', 'tcp', '-auth', auth, '-noreset'])
+  const display = rig.spawn(`display-${label}`, 'Xvfb', [`:${lease.number}`, '-screen', '0', '854x480x24', '-nolisten', 'tcp', '-auth', auth, '-noreset'])
   lease.attach(display)
   await rig.wait('private display', () => lease.ready(), 15000, [display])
-  const dir = path.join(rig.root, name)
+  const dir = path.join(rig.root, label)
   fs.mkdirSync(path.join(dir, 'mods'), { recursive: true })
   fs.copyFileSync(verify(rig.manifest.artifacts.native), path.join(dir, 'mods/probe.jar'))
+  for (const [file, key] of extra.mods || []) {
+    fs.copyFileSync(verify(rig.manifest.artifacts[key]), path.join(dir, `mods/${file}.jar`))
+  }
   fs.writeFileSync(path.join(dir, 'options.txt'), 'version:5023\nonboardAccessibility:false\nstartedCleanly:true\npauseOnLostFocus:false\nenableVsync:false\nmaxFps:30\nrenderDistance:3\nsimulationDistance:5\nnarrator:0\n')
   const env = { ...process.env, DISPLAY: `:${lease.number}`, XAUTHORITY: auth, XDG_RUNTIME_DIR: temp,
     SDL_VIDEO_DRIVER: 'x11', LIBGL_ALWAYS_SOFTWARE: '1', ALSOFT_DRIVERS: 'null', VK_LOADER_LAYERS_DISABLE: '~implicit~' }
   for (const key of ['WAYLAND_DISPLAY', 'DBUS_SESSION_BUS_ADDRESS', 'JAVA_TOOL_OPTIONS', '_JAVA_OPTIONS']) delete env[key]
   const request = path.join(dir, 'request.json'), events = path.join(dir, 'events.jsonl')
-  const entry = rig.spawn(name, 'java', ['-Xmx3G', `-Dpolymer.bulk.pack=${name === 'polymertwo'}`, `-Dclaude.scratch=fawe-${rig.token}`,
+  const entry = rig.spawn(label, 'java', ['-Xmx3G', ...(extra.jvm || []), `-Dpolymer.bulk.pack=${name === 'polymertwo'}`, `-Dclaude.scratch=fawe-${rig.token}`,
     '--enable-native-access=ALL-UNNAMED', '--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED', '-XX:StackShadowPages=32',
     `-Dpolymer.bulk.request=${request}`, `-Dpolymer.bulk.events=${events}`, `-Dpolymer.bulk.packets=${path.join(dir, 'packets.jsonl')}`, '-cp', classpath(rig.manifest, 'client'),
     'net.fabricmc.loader.impl.launch.knot.KnotClient', '--username', name, '--uuid', offlineUuid(name), '--accessToken', '0',
@@ -57,7 +62,7 @@ async function client (rig, port, name) {
     writeJson(request + '.new', { id, ...action }); fs.renameSync(request + '.new', request)
     return rig.wait('native observation', () => read().find(event => event.id === id), 30000, [entry, display])
   }
-  return { entry, send }
+  return { entry, send, dir }
 }
 
 async function main () {
@@ -259,4 +264,5 @@ async function main () {
   }
   if (failure) throw failure
 }
-main().catch(error => { console.error(error.stack); process.exitCode = 1 })
+module.exports = { client }
+if (require.main === module) main().catch(error => { console.error(error.stack); process.exitCode = 1 })
