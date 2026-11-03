@@ -19,5 +19,15 @@ manifest['runLabel'] = 'fawe-s7-suite'
 manifest['artifacts']['fawe'] = pin(sys.argv[1])
 manifest['artifacts']['fawetest'] = pin(sys.argv[2])
 manifest['artifacts']['s7probe'] = pin(ROOT / 'build/libs/polymer-bundled-0.18.6-fawe-s7.1+26.3-bulk-s7.jar')
+# Older watchers: clients from pin-clients.py, probes from build-older.js, server-side ViaFabric.
+manifest['olderClients'] = json.loads((ROOT / 'test/bulk/older-clients.json').read_text())
+for version in manifest['olderClients']:
+    manifest['artifacts'][f'native-{version}'] = pin(ROOT / f'build/libs/polymer-bulk-native-{version}.jar')
+    manifest['artifacts'][f's7probe-{version}'] = pin(ROOT / f'build/libs/polymer-bulk-s7-{version}.jar')
+VIA = Path('/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/client-inputs/via')
+manifest['artifacts']['viafabric'] = pin(VIA / 'ViaFabric-0.4.22+185-26.x.jar')
+manifest['artifacts']['viabackwards'] = pin(VIA / 'ViaBackwards-5.12.1-SNAPSHOT.jar')
+manifest['mods'] += [['viafabric', 'viafabric'], ['viabackwards', 'viabackwards']]
 (ROOT / 'test/bulk/s7-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-print(json.dumps({key: manifest['artifacts'][key]['sha256'] for key in ('fawe', 'fawetest', 's7probe')}))
+print(json.dumps({key: value['sha256'][:16] for key, value in manifest['artifacts'].items()
+                  if key in ('fawe', 'fawetest', 's7probe', 'viafabric', 'viabackwards') or '-26.' in key}))

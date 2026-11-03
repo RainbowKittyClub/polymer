@@ -37,6 +37,17 @@ const SOURCE = ['minecraft:oak_log[axis=y]', 'minecraft:acacia_log[axis=y]', CHE
 // Every cell differs from the stone it lands on, so each written flag is unambiguous.
 const UNSUPPORTED = ['minecraft:oak_log[axis=y]', SIGN, 'minecraft:birch_log[axis=y]', 'minecraft:acacia_log[axis=y]']
 const row = state => Array(WIDTH).fill(state)
+// Every watcher sees both regions. polymerone runs the commands. Older clients join the 26.3 server
+// through server-side ViaFabric + ViaBackwards; each version pairs with the other pack choice.
+const WATCHERS = {
+  polymerone: { version: '26.3', pack: false },
+  polymertwo: { version: '26.3', pack: true },
+  polymerthree: { version: '26.1.2', pack: true },
+  polymerfour: { version: '26.2', pack: false }
+}
+const NAMES = Object.keys(WATCHERS)
+const KNOWN_UPSTREAM = [/\[Via-Mappingloader-\d+\/ERROR\]: Error during loading of Protocol1_21To1_20_5$/,
+  /\[Via-Mappingloader-\d+\/ERROR\]: Error during loading of Protocol1_21_5To1_21_4$/]
 const blockId = state => state.split('[')[0]
 // The fixture maps the lamp per recipient: blue wool with the server pack, red without.
 const seen = (state, pack) => blockId(state) === 'minecraft:redstone_lamp'
@@ -53,19 +64,23 @@ async function negative (report, fault, oracle) {
 async function main () {
   let lease, rig, rcon, server, failure
   const records = []
-  const report = { scope: 'S7 FAWE-path parity: 26.3 pack/no-pack watchers; not Via watchers, S10a or S12',
-    steps: [], negativeControls: [], routeStats: {} }
+  const report = { scope: 'S7 FAWE-path parity: 26.3 pack/no-pack watchers plus 26.1.2 and 26.2 watchers via ViaFabric; not S10a or S12',
+    watchers: WATCHERS, steps: [], negativeControls: [], routeStats: {} }
   const manifestFile = path.join(__dirname, 's7-manifest.json')
   const manifest = json(manifestFile)
-  report.sourceHashes = Object.fromEntries(['test/bulk/s7.js', 'test/bulk/combined.js', 'test/bulk/pin-s7.py',
-    'test/bulk/s7/java/eu/pb4/polymer/bulks7/RegionSnapshotMixin.java'].map(name => [name, hash(path.join(repo, name))]))
+  const sources = ['test/bulk/s7.js', 'test/bulk/combined.js', 'test/bulk/pin-s7.py', 'test/bulk/pin-clients.py',
+    'test/bulk/build-older.js', 'test/bulk/s7/java/eu/pb4/polymer/bulks7/RegionSnapshotMixin.java',
+    ...fs.readdirSync(path.join(__dirname, 'older'), { recursive: true }).filter(name => name.endsWith('.java'))
+      .map(name => `test/bulk/older/${name}`)]
+  report.sourceHashes = Object.fromEntries(sources.map(name => [name, hash(path.join(repo, name))]))
+  report.protocols = Object.fromEntries(Object.entries(manifest.olderClients).map(([version, entry]) => [version, entry.protocol]))
   const reportFile = path.join(evidence, `s7-${Date.now()}.json`)
   const model = { coordinated: row('minecraft:air'), ordinary: row('minecraft:air') }
   const watchers = {}
   // Byte ranges of child logs where deliberate failures may log errors; everything else must be clean.
   const windows = []
   report.expectedErrorWindows = windows
-  let one, two
+  let one
   try {
     lease = new SingleLaneLease()
     rig = new Rig('/mnt/WORKSPACE/scratchpad/fawe', manifest, manifestFile, await admitResources())
@@ -89,7 +104,7 @@ async function main () {
       'generate-structures': false, 'enforce-secure-profile': false }
     const propsFile = path.join(dir, 'server.properties')
     fs.writeFileSync(propsFile, Object.entries(props).map(([k, v]) => `${k}=${v}`).join('\n'))
-    writeJson(path.join(dir, 'ops.json'), ['polymerone', 'polymertwo'].map(name => ({ name, uuid: offlineUuid(name), level: 4, bypassesPlayerLimit: false })))
+    writeJson(path.join(dir, 'ops.json'), NAMES.map(name => ({ name, uuid: offlineUuid(name), level: 4, bypassesPlayerLimit: false })))
     game.reservation.close(); rconPort.reservation.close()
     const send = async command => { const answer = await rcon.send(command); records.push({ command, answer }); return answer }
     let boot = 0
@@ -109,7 +124,10 @@ async function main () {
       const label = `${name}-${++joins}`
       const gameDir = path.join(rig.root, label)
       const request = path.join(gameDir, 's7-request.json'), events = path.join(gameDir, 's7-events.jsonl')
-      const native = await client(rig, game.port, name, { dir: label, mods: [['s7probe', 's7probe']],
+      const { version, pack } = WATCHERS[name]
+      const older = version !== '26.3'
+      const native = await client(rig, game.port, name, { dir: label, pack, version: older ? version : undefined,
+        mods: [['s7probe', older ? `s7probe-${version}` : 's7probe']],
         jvm: [`-Dpolymer.s7.request=${request}`, `-Dpolymer.s7.events=${events}`] })
       await send(`tp ${name} ${VIEW}`)
       const read = () => fs.existsSync(events) ? fs.readFileSync(events, 'utf8').split('\n').filter(Boolean).map(JSON.parse) : []
@@ -118,7 +136,7 @@ async function main () {
         writeJson(request + '.new', { id, action: 'region', boxes: [A, B] }); fs.renameSync(request + '.new', request)
         return rig.wait('s7 observation', () => read().find(event => event.id === id), 30000, [native.entry])
       }
-      watchers[name] = { ...native, name, pack: name === 'polymertwo', observe }
+      watchers[name] = { ...native, name, version, pack, observe }
       return watchers[name]
     }
     const clock = async () => {
@@ -167,7 +185,7 @@ async function main () {
         }
       }
       const views = {}
-      for (const watcher of [one, two]) {
+      for (const watcher of NAMES.map(name => watchers[name])) {
         const view = await watcher.observe()
         assert.ok(view.inWorld, `${step}: ${watcher.name} is not in the world`)
         const a = view.boxes.coordinated, b = view.boxes.ordinary
@@ -180,7 +198,7 @@ async function main () {
         })
         if (!model.coordinated.includes(LIT)) assert.ok(a.cells.every(cell => cell.lightAbove === 0), `${step}: ${watcher.name} stale light`)
         a.cells.forEach((cell, i) => {
-          const entity = model.coordinated[i] === CHEST
+          const entity = [CHEST, SIGN].includes(model.coordinated[i])
           assert.equal(cell.blockEntity !== undefined, entity, `${step}: ${watcher.name} block entity presence at coordinated[${i}]`)
         })
         assert.deepEqual(cells(a), cells(b), `${step}: ${watcher.name} coordinated and ordinary cells differ`)
@@ -200,10 +218,35 @@ async function main () {
         return views
       } catch (error) { throw last || error }
     }
+    // A refused coordinated edit names chunk and reason, and leaves the world, every watcher's view
+    // (cells and display identities) and the route statistics exactly as they were.
+    const frozen = view => ({ cells: cells(view), displays: view.displays.map(({ id, at, shows }) => `${id}|${at}|${shows}`).sort() })
+    report.refusals = []
+    const refusal = async (label, args, reason) => {
+      const stats = JSON.parse(await send('fawepublish stats'))
+      const before = await settle(`before-${label}`)
+      const offset = fs.statSync(one.entry.log).size
+      await select(A)
+      await chat(`fawe-coordinated ${args}`, /Coordinated edit (REFUSED|refused|failed|complete)/)
+      const line = fs.readFileSync(one.entry.log).subarray(offset).toString('utf8').split('\n')
+        .find(text => /Coordinated edit (REFUSED|refused|failed|complete)/.test(text))
+      assert.match(line, /Coordinated edit REFUSED for chunk 200,200; no changes were written: /, `${label}: not a clean refusal: ${line}`)
+      assert.match(line, reason, `${label}: refusal reason: ${line}`)
+      const tick = await clock()
+      await rig.wait(`${label} quiet`, async () => await clock() >= tick + 40, 15000, [server])
+      const after = await settle(`after-${label}`)
+      for (const name of NAMES) {
+        for (const side of ['coordinated', 'ordinary']) {
+          assert.deepEqual(frozen(after[name][side]), frozen(before[name][side]), `${label}: ${name} ${side} view changed`)
+        }
+      }
+      assert.deepEqual(JSON.parse(await send('fawepublish stats')), stats, `${label}: route statistics changed`)
+      report.refusals.push({ label, message: line.slice(line.indexOf('Coordinated')), stats })
+    }
 
+    const joinAll = async () => { for (const name of NAMES) await join(name); one = watchers.polymerone }
     await start()
-    one = await join('polymerone')
-    two = await join('polymertwo')
+    await joinAll()
     // Floor under each row plus a strip at z+1 where the copy/paste player stands, so the WorldEdit
     // clipboard offset never depends on whether the row itself is solid.
     for (const target of [A, B, C]) await send(`fill ${target.x1} ${Y - 1} ${Z} ${target.x2} ${Y - 1} ${Z + 1} minecraft:stone strict`)
@@ -222,7 +265,7 @@ async function main () {
     // keepElementHolder: the fixture keeps its holder across a block change, so identities survive.
     await coordinated('set stripped_oak_log'); await send(`fill ${B.x1} ${Y} ${Z} ${B.x2} ${Y} ${Z} minecraft:stripped_oak_log strict`); both(row('minecraft:stripped_oak_log[axis=y]'))
     const stripped = await settle('set-stripped')
-    for (const name of ['polymerone', 'polymertwo']) {
+    for (const name of NAMES) {
       for (const side of ['coordinated', 'ordinary']) {
         assert.deepEqual(ids(stripped[name][side]), ids(oak[name][side]), `${name} ${side} holder identities changed`)
       }
@@ -257,29 +300,39 @@ async function main () {
     // Unload and reload: holders are recreated on load in both regions, with new identities.
     await paste()
     const loaded = await settle('reseed')
-    for (const name of ['polymerone', 'polymertwo']) await send(`tp ${name} ${AWAY}`)
+    // Refusal class: a manual Polymer chunk attachment has no owner adapter until S10a. Only Polymer's
+    // bulk (direct-section) route refuses it, so the edit must avoid the chest cell, which would send
+    // it per cell; holders do not survive the unload below, which clears it.
+    assert.match(await send('bulktest manualattach'), /bulk-ok manualattach/)
+    await refusal('manual-attachment', 'replace oak_log stone', /Manual chunk attachments require an owner adapter/)
+    // Wait for real unload events: `execute if loaded` goes false while the chunk is still in memory,
+    // and returning then would reuse the same chunk and holders.
+    const unloads = async target => JSON.parse(await send(`fawepublish unloads ${target.x1 >> 4} ${Z >> 4}`)).unloads
+    const unloadedBefore = [await unloads(A), await unloads(B)]
+    for (const name of NAMES) await send(`tp ${name} ${AWAY}`)
     await rig.wait('region chunks unloaded', async () =>
-      await send(`execute if loaded ${A.x1} ${Y} ${Z}`) !== 'Test passed' && await send(`execute if loaded ${B.x1} ${Y} ${Z}`) !== 'Test passed', 120000, [server])
-    for (const name of ['polymerone', 'polymertwo']) await send(`tp ${name} ${VIEW}`)
+      await unloads(A) > unloadedBefore[0] && await unloads(B) > unloadedBefore[1], 120000, [server])
+    for (const name of NAMES) await send(`tp ${name} ${VIEW}`)
     const reloaded = await settle('reload', 60000)
-    for (const name of ['polymerone', 'polymertwo']) {
+    for (const name of NAMES) {
       for (const side of ['coordinated', 'ordinary']) {
         assert.ok(ids(reloaded[name][side]).every(id => !ids(loaded[name][side]).includes(id)), `${name} ${side} kept pre-unload displays`)
       }
     }
 
-    // Rejoin: a fresh pack client sees what the model says.
-    await rig.stop(two.entry)
-    two = await join('polymertwo')
+    // Rejoin: fresh pack clients, native and through Via, see what the model says.
+    for (const name of ['polymertwo', 'polymerthree']) {
+      await rig.stop(watchers[name].entry)
+      await join(name)
+    }
     await settle('rejoin', 60000)
 
     // Restart: saved state reloads for fresh clients.
     report.routeStats.beforeRestart = JSON.parse(await send('fawepublish stats'))
-    await rig.stop(one.entry); await rig.stop(two.entry)
+    for (const name of NAMES) await rig.stop(watchers[name].entry)
     await stopServer()
     await start()
-    one = await join('polymerone')
-    two = await join('polymertwo')
+    await joinAll()
     await settle('restart', 60000)
 
     // Unsupported block mid-paste: WorldEdit commits per cell, skips the sign, writes the rest and
@@ -309,6 +362,23 @@ async function main () {
     await settle('unsupported-paste-skips')
     await setRow(C, SOURCE, { [CHEST]: CHEST_DATA })
 
+    // Refusal classes through the coordinated route, which refuses the whole chunk.
+    const STONE = row('minecraft:stone')
+    await coordinated('set stone'); await send(`fill ${B.x1} ${Y} ${Z} ${B.x2} ${Y} ${Z} minecraft:stone strict`); both(STONE)
+    await refusal('unsupported-after', 'set oak_sign', /No lifecycle capability for minecraft:oak_sign\S* at 3200,80,3204/)
+    const signed = ['minecraft:stone', SIGN, 'minecraft:stone', 'minecraft:stone']
+    await setRow(A, signed, { [SIGN]: SIGN_DATA }); await setRow(B, signed, { [SIGN]: SIGN_DATA }); both(signed)
+    await refusal('unsupported-before', 'set oak_log', /No lifecycle capability for minecraft:oak_sign\S* at 3201,80,3204/)
+    await setRow(A, STONE); await setRow(B, STONE); both(STONE)
+    assert.match(await send(`fawepublish attach chunk ${A.x1} ${Y} ${Z} on`), /"attached":true/)
+    await refusal('chunk-attachment', 'set oak_log', /codecs are not installed for chunk 200,200 \[fawe_test:unknown\]/)
+    assert.match(await send(`fawepublish attach chunk ${A.x1} ${Y} ${Z} off`), /"attached":false/)
+    const chested = [CHEST, 'minecraft:stone', 'minecraft:stone', 'minecraft:stone']
+    await setRow(A, chested, { [CHEST]: CHEST_DATA }); await setRow(B, chested, { [CHEST]: CHEST_DATA }); both(chested)
+    assert.match(await send(`fawepublish attach block ${A.x1} ${Y} ${Z} on`), /"attached":true/)
+    await refusal('block-entity-attachment', 'set stone', /codecs are not installed for block entity at 3200,80,3204 \[fawe_test:unknown\]/)
+    assert.match(await send(`fawepublish attach block ${A.x1} ${Y} ${Z} off`), /"attached":false/)
+
     // Negative control 1: the fixture ignores the recipient's pack; the independent oracle must catch it.
     await coordinated('set stone'); await send(`fill ${B.x1} ${Y} ${Z} ${B.x2} ${Y} ${Z} minecraft:stone strict`); both(row('minecraft:stone'))
     await settle('before-recipient-fault')
@@ -333,17 +403,19 @@ async function main () {
     // Detection must come from Polymer's own guard: it refuses to publish and drops every watcher.
     // Each client logs the reason it received; the server may log a client that closed first as plain
     // "Disconnected", so the client side is the witness.
-    for (const watcher of [one, two]) {
+    for (const watcher of NAMES.map(name => watchers[name])) {
       await rig.wait(`${watcher.name} disconnect reason`, () => fs.readFileSync(watcher.entry.log)
         .subarray(reconcileFault.start[watcher.entry.log]).toString('utf8')
         .includes('Client disconnected with reason: Bulk edit finalization failed; chunk requires reload'), 15000)
     }
-    report.negativeControls.at(-1).mechanism = 'Polymer refused to publish an unreconciled token and disconnected both watchers'
+    report.negativeControls.at(-1).mechanism = 'Polymer refused to publish an unreconciled token and disconnected every watcher'
 
     for (const watcher of Object.values(watchers)) await rig.stop(watcher.entry)
     await stopServer()
     fs.writeFileSync(propsFile, fs.readFileSync(propsFile, 'utf8').replace(/^rcon.password=.*$/m, 'rcon.password=REDACTED'))
     assert.equal(report.negativeControls.length, 2)
+    assert.deepEqual(report.refusals.map(entry => entry.label), ['manual-attachment', 'unsupported-after',
+      'unsupported-before', 'chunk-attachment', 'block-entity-attachment'])
     report.status = 'passed-subset'
   } catch (error) { failure = error; report.failure = error.stack; report.status = 'failed' } finally {
     if (rcon) { try { await rcon.send('stop') } catch {} rcon.close() }
@@ -365,7 +437,10 @@ async function main () {
           cursor = Math.max(cursor, to)
         }
         outside.push(...errors(bytes.subarray(cursor)))
-        return { log: entry.log, errors: outside, expected }
+        // ViaVersion 5.12.1-SNAPSHOT fails two pre-26 mapping loads at every boot (NBT tag cast);
+        // the 26.x protocols the watchers use are unaffected. Kept visible, not counted.
+        const upstream = outside.filter(line => KNOWN_UPSTREAM.some(pattern => pattern.test(line)))
+        return { log: entry.log, errors: outside.filter(line => !upstream.includes(line)), knownUpstream: upstream, expected }
       })
       if (report.logScan.some(entry => entry.errors.length)) {
         failure ||= new Error('Runtime error log scan failed')
