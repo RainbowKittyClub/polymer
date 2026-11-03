@@ -18,6 +18,11 @@ allprojects {
                     resources.srcDir 'test/bulk/native/resources'
                     compileClasspath += sourceSets.main.compileClasspath
                 }
+                bulkS7 {
+                    java.srcDir 'test/bulk/s7/java'
+                    resources.srcDir 'test/bulk/s7/resources'
+                    compileClasspath += sourceSets.main.compileClasspath
+                }
             }
             tasks.register('bulkTestJar', Jar) {
                 archiveClassifier = 'bulk-test'
@@ -30,6 +35,10 @@ allprojects {
             tasks.register('bulkNativeJar', Jar) {
                 archiveClassifier = 'bulk-native'
                 from sourceSets.bulkNative.output
+            }
+            tasks.register('bulkS7Jar', Jar) {
+                archiveClassifier = 'bulk-s7'
+                from sourceSets.bulkS7.output
             }
         }
     }

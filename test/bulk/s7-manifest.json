@@ -1,0 +1,1172 @@
+{
+  "minecraft": {
+    "version": "26.3",
+    "metadata": {
+      "path": "/home/kgadberry/.gradle/caches/fabric-loom/26.3/mojang_minecraft_info.json",
+      "sha256": "7755c56601d666849aad5b4266503cacc17dac1b747018fccd5a19201b3dda82",
+      "bytes": 44992
+    },
+    "client": {
+      "path": "/home/kgadberry/.gradle/caches/fabric-loom/26.3/minecraft-client.jar",
+      "sha256": "4508d006323f24fa02876310c192d739af56516eb259000ac50f0909a68c9a2d",
+      "bytes": 41483720,
+      "nested": []
+    },
+    "serverBundle": {
+      "path": "/home/kgadberry/.gradle/caches/fabric-loom/26.3/minecraft-server.jar",
+      "sha256": "d052f14d7a173734fba553711e5b570162e2f2a313267ee31a21b975a679be64",
+      "bytes": 62294556,
+      "nested": [
+        {
+          "entry": "META-INF/libraries/at/yawk/lz4/lz4-java/1.10.1/lz4-java-1.10.1.jar",
+          "sha256": "a58a84c4271e50df4c96ed916ccb7e48a869f8ed9cdcda1ad5d3d4c33b0214a3",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/azure/azure-json/1.4.0/azure-json-1.4.0.jar",
+          "sha256": "c50bc998cd1a6c689f8644b51c206217bf2da09d5b949e777490a60290cc3a0d",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/github/oshi/oshi-core/6.9.0/oshi-core-6.9.0.jar",
+          "sha256": "b29ba9bce041e6ea822203d5b5a692660c87551241510ebc76eedffe684844c7",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/google/code/gson/gson/2.14.0/gson-2.14.0.jar",
+          "sha256": "2cbd119bf1961c28788310963dc80ba65f58cdeec1dd139c8bdb1240faa2c36f",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar",
+          "sha256": "cbfc3906b19b8f55dd7cfd6dfe0aa4532e834250d7f080bd8d211a3e246b59cb",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/google/guava/guava/33.6.0-jre/guava-33.6.0-jre.jar",
+          "sha256": "dc573e1fca4fd5454f4a5fd3d7da2df03002876a4175bafc14a95980dd7713b3",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/microsoft/azure/msal4j/1.24.1/msal4j-1.24.1.jar",
+          "sha256": "12e62f79d1a71d176a41c168c0587f8167f0add99b78f006f39595bd7242aebe",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/mojang/authlib/10.0.77/authlib-10.0.77.jar",
+          "sha256": "521672866582633a412c82171d3cfa416ecaccdf05a43baf809c16f9aec07068",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/mojang/brigadier/1.3.11/brigadier-1.3.11.jar",
+          "sha256": "9d09cf4819de83dfcd38bcb212d5f2227131791cef3abbfca3321d6fb2b9a64d",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/mojang/datafixerupper/10.0.21/datafixerupper-10.0.21.jar",
+          "sha256": "3547cb1da8993fb7ebd42494d0e78997d2cfbe90c421f5efd022863e6909941e",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/mojang/jtracy/1.14.38/jtracy-1.14.38.jar",
+          "sha256": "721bff502a9664d689d781ab7bfed19330606c2e1ef6b8e4d59fba67e7e765da",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/com/mojang/logging/1.7.12/logging-1.7.12.jar",
+          "sha256": "3c7ac9742fa98c773275379eb1046c048b5d2ee989152a8c69e7ba696c3f8538",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/commons-io/commons-io/2.20.0/commons-io-2.20.0.jar",
+          "sha256": "df90bba0fe3cb586b7f164e78fe8f8f4da3f2dd5c27fa645f888100ccc25dd72",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-buffer/4.2.16.Final/netty-buffer-4.2.16.Final.jar",
+          "sha256": "cc36ae9fbd0b03fe755eb4eb4424ca53b59cfd297d7fd47d49e5b1059beded6c",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-codec-base/4.2.16.Final/netty-codec-base-4.2.16.Final.jar",
+          "sha256": "feb410225938d9970de6b624a0c031d079804fa5cc5e1ec6e9298f16db5998a7",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-codec-compression/4.2.16.Final/netty-codec-compression-4.2.16.Final.jar",
+          "sha256": "13c8565414dd2115281303ef4ad1f7cc69bd7771d8d12c7d2fb31307dff26d11",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-codec-http/4.2.16.Final/netty-codec-http-4.2.16.Final.jar",
+          "sha256": "0d16f981de8d0d304a2ab1a81f0a674892089fbaa8a583100aebb4a5b00456ec",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-common/4.2.16.Final/netty-common-4.2.16.Final.jar",
+          "sha256": "9825ee68a0dc4cd2b53e2f532502401b2211bad9b77e8b04882d9e64487283ff",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-handler/4.2.16.Final/netty-handler-4.2.16.Final.jar",
+          "sha256": "a259ca496da05ac1981f95cd856211f894a328056a6129e9cd70dbbd5df401f7",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-resolver/4.2.16.Final/netty-resolver-4.2.16.Final.jar",
+          "sha256": "c9eca6a99036485cf1d186b4a6a595b0a54c53808319ee03924270eae04c32bb",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-transport-classes-epoll/4.2.16.Final/netty-transport-classes-epoll-4.2.16.Final.jar",
+          "sha256": "9f2b53210db9c8d24e787ed43f3896aaf30d686ed270c7afbb29ab6330c6aa23",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-transport-classes-kqueue/4.2.16.Final/netty-transport-classes-kqueue-4.2.16.Final.jar",
+          "sha256": "6599b495f69420cb240ab0a1aa60a19a2df3bc72791729170e0993727637a689",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-transport-native-epoll/4.2.16.Final/netty-transport-native-epoll-4.2.16.Final-linux-aarch_64.jar",
+          "sha256": "212cc7d81390e31b580a1fb91b6c8d963b43e762ed072c555e2b09ad4476e928",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-transport-native-epoll/4.2.16.Final/netty-transport-native-epoll-4.2.16.Final-linux-x86_64.jar",
+          "sha256": "2e00548e731948881d0c73ee79d2ead759254e750929406a1d595484758f0267",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-transport-native-kqueue/4.2.16.Final/netty-transport-native-kqueue-4.2.16.Final-osx-aarch_64.jar",
+          "sha256": "796c503f7a80217177bd315f6448263134ee0f9042627d5fd698c760bcf99c8c",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-transport-native-kqueue/4.2.16.Final/netty-transport-native-kqueue-4.2.16.Final-osx-x86_64.jar",
+          "sha256": "05a09a4ab51f488f0c22f42ccce6c06935afbfac51173fae44170465aa072828",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-transport-native-unix-common/4.2.16.Final/netty-transport-native-unix-common-4.2.16.Final.jar",
+          "sha256": "41ca8fe192083d17917be7ddcecded4da4fc1db1d1656d03d0bcb14e2f431155",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/io/netty/netty-transport/4.2.16.Final/netty-transport-4.2.16.Final.jar",
+          "sha256": "cfa3f654caff906653385f4b7ddaa539d795b78f5711a622482b17d2b73484c0",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/it/unimi/dsi/fastutil/8.5.18/fastutil-8.5.18.jar",
+          "sha256": "9094ae67d01d0ad246f886f11ad557fc2e79c72cbf3feed83e1512a8ae90a74a",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/net/java/dev/jna/jna-platform/5.17.0/jna-platform-5.17.0.jar",
+          "sha256": "b7e3d46c87bad2eb409b0e704916bcd81206168e357312dfddd0e253679cd9e0",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/net/java/dev/jna/jna/5.17.0/jna-5.17.0.jar",
+          "sha256": "b3a9408e7c51e08ef0e3bfcc08f443f6ec0f6191ba8cd7c18d53d2b22e5bdbc0",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar",
+          "sha256": "df26cc58f235f477db07f753ba5a3ab243ebe5789d9f89ecf68dd62ea9a66c28",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/org/apache/commons/commons-lang3/3.20.0/commons-lang3-3.20.0.jar",
+          "sha256": "69e5c9fa35da7a51a5fd2099dfe56a2d8d32cf233e2f6d770e796146440263f4",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/org/apache/logging/log4j/log4j-api/2.26.0/log4j-api-2.26.0.jar",
+          "sha256": "820de7bbaf430eaf2e3e5ccb92f23e2085797c5ac4d4f7fc6c8b660fbefa1dbc",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/org/apache/logging/log4j/log4j-core/2.26.0/log4j-core-2.26.0.jar",
+          "sha256": "406bb3132c47a5d322e5c571feb0787ca84496469f346eb51f1ef2ee45499902",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/org/apache/logging/log4j/log4j-slf4j2-impl/2.26.0/log4j-slf4j2-impl-2.26.0.jar",
+          "sha256": "cfc1bddbd39e684b698ae968291d8a3b3a55ee0ec2ef3d3ea5c2336a9e151598",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/org/joml/joml/1.10.9/joml-1.10.9.jar",
+          "sha256": "feca4db853371704338621c120acc5cc32300d8af635fa42414b6213301e216b",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar",
+          "sha256": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/libraries/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar",
+          "sha256": "7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/versions/26.3/server-26.3.jar",
+          "sha256": "a362163eec5d1612d520772bc16e5b39c09e3b234fdc045f56bf544284ee8ae6",
+          "nested": []
+        }
+      ]
+    },
+    "server": {
+      "path": "/home/kgadberry/.gradle/caches/fabric-loom/26.3/minecraft-extracted_server.jar",
+      "sha256": "a362163eec5d1612d520772bc16e5b39c09e3b234fdc045f56bf544284ee8ae6",
+      "bytes": 26652008,
+      "nested": []
+    },
+    "assetsRoot": "/home/kgadberry/.gradle/caches/fabric-loom/assets",
+    "assetIndex": {
+      "path": "/home/kgadberry/.gradle/caches/fabric-loom/assets/indexes/26.3-34.json",
+      "sha256": "46fc3ca895e015637f6a766911dbf8de5d75bd87d0a007e2881cb4710e81cd19",
+      "bytes": 597035
+    },
+    "metadataAssetIndexSha1": "917ff6d74b9f635c46bac0d28857206bbcc1ffe4",
+    "cachedAssetIndexSha1": "917ff6d74b9f635c46bac0d28857206bbcc1ffe4",
+    "assetIndexPolicy": "Cached index matches pinned version metadata; all 5147 cached objects verified by size and SHA1. No download or shared-cache write.",
+    "assetIndexName": "26.3-34",
+    "assetCount": 5147,
+    "libraries": [
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/at.yawk.lz4/lz4-java/1.10.1/f541d7f910fe3d76f38f799c507c48cc81b12ecb/lz4-java-1.10.1.jar",
+        "sha256": "a58a84c4271e50df4c96ed916ccb7e48a869f8ed9cdcda1ad5d3d4c33b0214a3",
+        "bytes": 910232,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.azure/azure-json/1.4.0/fcc1d354dbc3e0300e5276b1bf124d0247799cd8/azure-json-1.4.0.jar",
+        "sha256": "c50bc998cd1a6c689f8644b51c206217bf2da09d5b949e777490a60290cc3a0d",
+        "bytes": 325945,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.github.oshi/oshi-core/6.9.0/3224870731860cfcd7744581a05b559e94291e7/oshi-core-6.9.0.jar",
+        "sha256": "b29ba9bce041e6ea822203d5b5a692660c87551241510ebc76eedffe684844c7",
+        "bytes": 1022125,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.14.0/efc0e34ede4e3204eaefb84a00e55e8c86634382/gson-2.14.0.jar",
+        "sha256": "2cbd119bf1961c28788310963dc80ba65f58cdeec1dd139c8bdb1240faa2c36f",
+        "bytes": 313604,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.3/aeaffd00d57023a2c947393ed251f0354f0985fc/failureaccess-1.0.3.jar",
+        "sha256": "cbfc3906b19b8f55dd7cfd6dfe0aa4532e834250d7f080bd8d211a3e246b59cb",
+        "bytes": 10763,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/33.6.0-jre/c376b13067cc99a5774403530953f7b05a91e218/guava-33.6.0-jre.jar",
+        "sha256": "dc573e1fca4fd5454f4a5fd3d7da2df03002876a4175bafc14a95980dd7713b3",
+        "bytes": 3064793,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.ibm.icu/icu4j/78.3/6a851a53bb1f25689fc418dcc8935b0d93580adf/icu4j-78.3.jar",
+        "sha256": "e962c1758d9659ea1e1fbab99c58683f654d304e1126ace19aaabfe39e0edb25",
+        "bytes": 15156073,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.microsoft.azure/msal4j/1.24.1/c233f2d047b9755f7041adf21a858c680e4c9242/msal4j-1.24.1.jar",
+        "sha256": "12e62f79d1a71d176a41c168c0587f8167f0add99b78f006f39595bd7242aebe",
+        "bytes": 396486,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/authlib/10.0.77/add8754cda96cf0cd840441632875648836f8a71/authlib-10.0.77.jar",
+        "sha256": "521672866582633a412c82171d3cfa416ecaccdf05a43baf809c16f9aec07068",
+        "bytes": 152645,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/blocklist/1.0.10/5c685c5ffa94c4cd39496c7184c1d122e515ecef/blocklist-1.0.10.jar",
+        "sha256": "830bfd639c8db49236bbd8e45d3a2b8c96c56ff654a10118654958a6235d4c44",
+        "bytes": 964,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/brigadier/1.3.11/3373d1e7bf00c8b99bed1ea4efb8c47344e4a887/brigadier-1.3.11.jar",
+        "sha256": "9d09cf4819de83dfcd38bcb212d5f2227131791cef3abbfca3321d6fb2b9a64d",
+        "bytes": 80151,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/datafixerupper/10.0.21/b6b2ae770c02e0c1eb90f9985b151e9085a38d0b/datafixerupper-10.0.21.jar",
+        "sha256": "3547cb1da8993fb7ebd42494d0e78997d2cfbe90c421f5efd022863e6909941e",
+        "bytes": 753612,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/jtracy/1.14.38/cc2ad81342001b4281c305a298d7f50332354058/jtracy-1.14.38.jar",
+        "sha256": "721bff502a9664d689d781ab7bfed19330606c2e1ef6b8e4d59fba67e7e765da",
+        "bytes": 14292,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/jtracy/1.14.38/d2433300f8a4e99595d513546d19ecddc3eaa15e/jtracy-1.14.38-natives-linux.jar",
+        "sha256": "6c64f455ebaa5f663136102b75fca635078d79efe284aa0aa3c60fa31ce48203",
+        "bytes": 256636,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/logging/1.7.12/351cea64a5233361327d8d54c44277041beed97f/logging-1.7.12.jar",
+        "sha256": "3c7ac9742fa98c773275379eb1046c048b5d2ee989152a8c69e7ba696c3f8538",
+        "bytes": 19540,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/patchy/2.2.10/da05971b07cbb379d002cf7eaec6a2048211fefc/patchy-2.2.10.jar",
+        "sha256": "16d70e7968b45caffc81576268eb000f473fb60bf257182d3447dea8ec919d5a",
+        "bytes": 4439,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/com.mojang/text2speech/1.19.12/2e517a75c79d34d32de2b5d68422150836c2133e/text2speech-1.19.12.jar",
+        "sha256": "63769a6f662ad8943adf6be14a45e375d76a567d7ba50c2a7f1f95082c93b816",
+        "bytes": 14009,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.22.0/6b3eb4beb7058c2a638f5f17bcb388649fd339dd/commons-codec-1.22.0.jar",
+        "sha256": "d164fe79f262c32d9b18a0b5b2d317d1c27653d5e98fd2b998c24bf901c72ce4",
+        "bytes": 420480,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.20.0/36f3474daec2849c149e877614e7f979b2082cd2/commons-io-2.20.0.jar",
+        "sha256": "df90bba0fe3cb586b7f164e78fe8f8f4da3f2dd5c27fa645f888100ccc25dd72",
+        "bytes": 563971,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-buffer/4.2.16.Final/5397ef65dcb60670e0e0dba4854522873af3070/netty-buffer-4.2.16.Final.jar",
+        "sha256": "cc36ae9fbd0b03fe755eb4eb4424ca53b59cfd297d7fd47d49e5b1059beded6c",
+        "bytes": 378032,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-base/4.2.16.Final/1a01d45a9efc228c6d747525848b065e0656b5f/netty-codec-base-4.2.16.Final.jar",
+        "sha256": "feb410225938d9970de6b624a0c031d079804fa5cc5e1ec6e9298f16db5998a7",
+        "bytes": 155355,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-compression/4.2.16.Final/bdbbcfcdbe217b95c14a04df4fc5d31213d5c27c/netty-codec-compression-4.2.16.Final.jar",
+        "sha256": "13c8565414dd2115281303ef4ad1f7cc69bd7771d8d12c7d2fb31307dff26d11",
+        "bytes": 183349,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-http/4.2.16.Final/b5e0715df90047ee5a0138c8f704f43c751009e4/netty-codec-http-4.2.16.Final.jar",
+        "sha256": "0d16f981de8d0d304a2ab1a81f0a674892089fbaa8a583100aebb4a5b00456ec",
+        "bytes": 678387,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-common/4.2.16.Final/c2bc7fa5acfa2afc777e944d84f0aa65559cc81e/netty-common-4.2.16.Final.jar",
+        "sha256": "9825ee68a0dc4cd2b53e2f532502401b2211bad9b77e8b04882d9e64487283ff",
+        "bytes": 819965,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-handler/4.2.16.Final/cc82873ae4b6d14effe480740ad838de09add70d/netty-handler-4.2.16.Final.jar",
+        "sha256": "a259ca496da05ac1981f95cd856211f894a328056a6129e9cd70dbbd5df401f7",
+        "bytes": 587814,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-resolver/4.2.16.Final/fcea6d64273b59ab9127b68c16ae98af34642139/netty-resolver-4.2.16.Final.jar",
+        "sha256": "c9eca6a99036485cf1d186b4a6a595b0a54c53808319ee03924270eae04c32bb",
+        "bytes": 32975,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-classes-epoll/4.2.16.Final/cf90c7b892e284ba9f1545dce170168369b3b9d6/netty-transport-classes-epoll-4.2.16.Final.jar",
+        "sha256": "9f2b53210db9c8d24e787ed43f3896aaf30d686ed270c7afbb29ab6330c6aa23",
+        "bytes": 159935,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-classes-kqueue/4.2.16.Final/fa2bcf8c71626510f6fae173f78182117b70f7a/netty-transport-classes-kqueue-4.2.16.Final.jar",
+        "sha256": "6599b495f69420cb240ab0a1aa60a19a2df3bc72791729170e0993727637a689",
+        "bytes": 116819,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/eed34f3b37b4c46a0cbb49456ccc4e3bd7195e4c/netty-transport-native-epoll-4.2.16.Final-linux-aarch_64.jar",
+        "sha256": "212cc7d81390e31b580a1fb91b6c8d963b43e762ed072c555e2b09ad4476e928",
+        "bytes": 43899,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/439c24f5c27c220deb042b42e4048d606edeb78d/netty-transport-native-epoll-4.2.16.Final-linux-x86_64.jar",
+        "sha256": "2e00548e731948881d0c73ee79d2ead759254e750929406a1d595484758f0267",
+        "bytes": 42393,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-unix-common/4.2.16.Final/3cf32390f1b80af890ac44aa0698c2ff58c2a4d7/netty-transport-native-unix-common-4.2.16.Final.jar",
+        "sha256": "41ca8fe192083d17917be7ddcecded4da4fc1db1d1656d03d0bcb14e2f431155",
+        "bytes": 46877,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport/4.2.16.Final/ae87a3bec51d503475a19fbd718bf777f2fc06c6/netty-transport-4.2.16.Final.jar",
+        "sha256": "cfa3f654caff906653385f4b7ddaa539d795b78f5711a622482b17d2b73484c0",
+        "bytes": 549855,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/it.unimi.dsi/fastutil/8.5.18/a6cff377eecc19c2037bf31568a6d7106b50ba1f/fastutil-8.5.18.jar",
+        "sha256": "9094ae67d01d0ad246f886f11ad557fc2e79c72cbf3feed83e1512a8ae90a74a",
+        "bytes": 23965563,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna-platform/5.17.0/a4934c44d25a9d8c2ddf4203affd20330cb3426f/jna-platform-5.17.0.jar",
+        "sha256": "b7e3d46c87bad2eb409b0e704916bcd81206168e357312dfddd0e253679cd9e0",
+        "bytes": 1378617,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/5.17.0/33d12735bef894440780fce64f9758d420c7bae2/jna-5.17.0.jar",
+        "sha256": "b3a9408e7c51e08ef0e3bfcc08f443f6ec0f6191ba8cd7c18d53d2b22e5bdbc0",
+        "bytes": 2002589,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/net.sf.jopt-simple/jopt-simple/5.0.4/4fdac2fbe92dfad86aa6e9301736f6b4342a3f5c/jopt-simple-5.0.4.jar",
+        "sha256": "df26cc58f235f477db07f753ba5a3ab243ebe5789d9f89ecf68dd62ea9a66c28",
+        "bytes": 78146,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-compress/1.28.0/e482f2c7a88dac3c497e96aa420b6a769f59c8d7/commons-compress-1.28.0.jar",
+        "sha256": "e1522945218456f3649a39bc4afd70ce4bd466221519dba7d378f2141a4642ca",
+        "bytes": 1117221,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.20.0/65897b3e5731220962e659e001904af3c3cbeba9/commons-lang3-3.20.0.jar",
+        "sha256": "69e5c9fa35da7a51a5fd2099dfe56a2d8d32cf233e2f6d770e796146440263f4",
+        "bytes": 713862,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.26.0/ad52af0ecf054a7e3f275a2e180ee06d9c490951/log4j-api-2.26.0.jar",
+        "sha256": "820de7bbaf430eaf2e3e5ccb92f23e2085797c5ac4d4f7fc6c8b660fbefa1dbc",
+        "bytes": 351126,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-core/2.26.0/d267ca60b27ddb075e0b4e75e7875859717bf85f/log4j-core-2.26.0.jar",
+        "sha256": "406bb3132c47a5d322e5c571feb0787ca84496469f346eb51f1ef2ee45499902",
+        "bytes": 2015101,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-slf4j2-impl/2.26.0/668c0f0e813d83f00a7182533aa658ec7e7a0a0d/log4j-slf4j2-impl-2.26.0.jar",
+        "sha256": "cfc1bddbd39e684b698ae968291d8a3b3a55ee0ec2ef3d3ea5c2336a9e151598",
+        "bytes": 30211,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.jcraft/jorbis/0.0.17/8872d22b293e8f5d7d56ff92be966e6dc28ebdc6/jorbis-0.0.17.jar",
+        "sha256": "e067f29a3701426b67ed973036949c6e58ca5bb53eef7240b2e71e286d252a9e",
+        "bytes": 99701,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.joml/joml/1.10.9/438e036486bad66b189bff385dd07dea4f74a146/joml-1.10.9.jar",
+        "sha256": "feca4db853371704338621c120acc5cc32300d8af635fa42414b6213301e216b",
+        "bytes": 814581,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.jspecify/jspecify/1.0.0/7425a601c1c7ec76645a78d22b8c6a627edee507/jspecify-1.0.0.jar",
+        "sha256": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
+        "bytes": 3819,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-freetype/3.4.3/d2b12961d44f92860fb1ab501f9c69b7a2975236/lwjgl-freetype-3.4.3.jar",
+        "sha256": "b331b9d2a29c1b330c3887d33c14dab9d7eed3f763bb8f5ca559eec02d73f075",
+        "bytes": 468438,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-freetype/3.4.3/38f27c9a0fbe000bfb38b295c32944d699e246e9/lwjgl-freetype-3.4.3-natives-linux.jar",
+        "sha256": "cbc702aa1d9c8fece6fe46a4e606c7c164eb7f0f7ca79f668dd95544db53fb2c",
+        "bytes": 1385284,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-jemalloc/3.4.3/350f317eaf5295b1e53f6664ef5fdeeaaa7dcbf0/lwjgl-jemalloc-3.4.3.jar",
+        "sha256": "f34062b6489454f7e2c3bf5979e37667e62c7c85cd00f73760f441557cb1978a",
+        "bytes": 48061,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-jemalloc/3.4.3/ca21b4b4c6d223907de645a18436ef6f677a5d4f/lwjgl-jemalloc-3.4.3-natives-linux.jar",
+        "sha256": "1c7fc271f132e3d606d3044b2520fcb663481e55e5783c6ef4272e3bae73a7d9",
+        "bytes": 224040,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-openal/3.4.3/32b52cda5af6937a4e4bd321bdb83082025cb332/lwjgl-openal-3.4.3.jar",
+        "sha256": "4a0049c8554d6890718fee76507572f2f9f8f3f6144d25d7d2ea76bccc2d9605",
+        "bytes": 154573,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-openal/3.4.3/7daa62f9f7b38b30e8a3d3bc7069e9b2e3cd52f0/lwjgl-openal-3.4.3-natives-linux.jar",
+        "sha256": "433cbf19b16b177dd12897ef24c37117d9ffff48736b6c81616efc72ad4691f9",
+        "bytes": 1159799,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-opengl/3.4.3/b81769ee48050f8c71e70839505f350bf9219d90/lwjgl-opengl-3.4.3.jar",
+        "sha256": "a92cf30f25b6fb6066f3508511f83c5c4fe2a0cff14fc2e7373bc1f6c726374f",
+        "bytes": 953649,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-opengl/3.4.3/ec6fb42167943e94f7f0b14707c1737653c4044b/lwjgl-opengl-3.4.3-natives-linux.jar",
+        "sha256": "4056e81c1174201f63e980f76b9955746c0f13d712e4d30ee02c38ae6bccd4ce",
+        "bytes": 82244,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-sdl/3.4.3/c02146735d6ff70d070c73532b435e5c893a346b/lwjgl-sdl-3.4.3.jar",
+        "sha256": "dcb33abcbd946553176bb668be80d7adc60cb9d919ab5c71fb01fc51cacc4c8f",
+        "bytes": 989769,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-sdl/3.4.3/6ed1b80b7c211a491612c70e43f27ba1f42cccd0/lwjgl-sdl-3.4.3-natives-linux.jar",
+        "sha256": "e1880683a4af33299e9a1b8d7ec1799bed8fb709064ea08dcc2a15cd1101c0b3",
+        "bytes": 1665811,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-shaderc/3.4.3/ba9fbc8fc4d50b3e4b436cc958ddb4abdb05867c/lwjgl-shaderc-3.4.3.jar",
+        "sha256": "82c7b5270d2c78458f5720c639459710c8f086ca050eea9ab0c44256fee7a626",
+        "bytes": 153441,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-shaderc/3.4.3/37faa5824f75901f4961e56805aedf68e13cf8b/lwjgl-shaderc-3.4.3-natives-linux.jar",
+        "sha256": "0dced6d3362cbcd68d8ac9a07f2ce045c604a9abce371e1f66c77cfb837f7fd7",
+        "bytes": 3872753,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-spvc/3.4.3/98e5b5ef5159100b26a169a9aed6c24e820e3eaa/lwjgl-spvc-3.4.3.jar",
+        "sha256": "d737eba8512caa2f53db7a8dbea4c08d9c3d94493bb0a244e6d64af95541f742",
+        "bytes": 150189,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-spvc/3.4.3/709eb01deec4bdafb7634b125a63fd8de172fc50/lwjgl-spvc-3.4.3-natives-linux.jar",
+        "sha256": "8898165a90911bfd6be0aa1168449d9092f1747f6b7a16c2270d8265981725b3",
+        "bytes": 1265592,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-stb/3.4.3/cdce54785bd3758e44a81f345d6260774d921c78/lwjgl-stb-3.4.3.jar",
+        "sha256": "544753f5e49c53580949b9f1fc341f0e434991303c93d5a428fbaafaacc2cd69",
+        "bytes": 143041,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-stb/3.4.3/3878e44ce27c12791e570b5c8754ef3b68401dd3/lwjgl-stb-3.4.3-natives-linux.jar",
+        "sha256": "5c66a2f11b18062b62ef9c6433f753720f7bdad44b18ab4078a0a6404a64a720",
+        "bytes": 286507,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vma/3.4.3/816a6ac87f1e447e5346ca0e7a1078353f51fbd6/lwjgl-vma-3.4.3.jar",
+        "sha256": "254162ef94bd213663a417368902ea916d51e0e0fa3054d07ea0ce9a8b7ac9e6",
+        "bytes": 110265,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vma/3.4.3/3a9a95d3e83f7fc49c6ed8d0e1c853b77662d90e/lwjgl-vma-3.4.3-natives-linux.jar",
+        "sha256": "f8690711c842de5aa15759459b8294fd682e452441b063bd7f902710db801804",
+        "bytes": 64034,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vulkan/3.4.3/ffdaf1898192059f059d66f9fa37e3debcac10e0/lwjgl-vulkan-3.4.3.jar",
+        "sha256": "acdb40767775ed1223dc3b2a8c9d3ce740c9e3c4af074444ce2dfe2ea9ba62e0",
+        "bytes": 8866042,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl/3.4.3/7ab5265a73d8a959ed62332d546536ae6be2f0d5/lwjgl-3.4.3.jar",
+        "sha256": "46eeca5471833c3cf5da3c1da015b41e3bb3eb16dd3da03f366886da10096751",
+        "bytes": 1255440,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl/3.4.3/2800e134537db1a175eba41c430b1018eddc48f0/lwjgl-3.4.3-natives-linux.jar",
+        "sha256": "d719e545a6db4ea87eb64d55630ba628755572bb5b56d51a1548347b5354cadb",
+        "bytes": 137717,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.17/d9e58ac9c7779ba3bf8142aff6c830617a7fe60f/slf4j-api-2.0.17.jar",
+        "sha256": "7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832",
+        "bytes": 69908,
+        "nested": []
+      }
+    ]
+  },
+  "loader": {
+    "version": "0.19.5",
+    "profile": {
+      "path": "/home/kgadberry/projects/minecraft-dev/rkc/forks/FabricAsyncWorldEdit/.claude/worktrees/fawe-fast-editing-20261029-s1-s2/test/references/fabric-loader-0.19.5.json",
+      "sha256": "0be28bd0abb23b2dec75a2df94a435ec41bfcf3dba0d7406a860956aa642e1f7",
+      "bytes": 2778
+    },
+    "libraries": [
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm/9.10.1/ada2141c0cc52ee8f5c48cd5fa4ce0e794f22236/asm-9.10.1.jar",
+        "sha256": "ed825d10ab1399c8c0cb669e688cf0c8c82629b4c8399b58352b68e92ca10fcb",
+        "bytes": 126151,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-analysis/9.10.1/8d49f14d51f632cb1d87c88d1ceaf50db0d8af1b/asm-analysis-9.10.1.jar",
+        "sha256": "dede75a21306b65974ecd8f87114ff6970f09fb794157a4ca09ab25c888c2bfc",
+        "bytes": 35140,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-commons/9.10.1/4229e4c55fd8e01c23f9fe9884075cc628aacc50/asm-commons-9.10.1.jar",
+        "sha256": "6d0abefb7cbf972ea16edb37ec14835372505063a45f976ab7ea889ed9497895",
+        "bytes": 74840,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-tree/9.10.1/e244332a17564c1d1572449399a842de35881be2/asm-tree-9.10.1.jar",
+        "sha256": "3dfb0d5b6a106cd40b5b250e39935fbf2f927f4477546a5369a3ac609cf0506b",
+        "bytes": 51958,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-util/9.10.1/7bb9d450e8d4cbf9f9e04096c44bbfe7fba80b15/asm-util-9.10.1.jar",
+        "sha256": "1bb99d091fba2597dc6d51193e9bbcf0d8447e7ed96bd8f0198b18152f09655c",
+        "bytes": 95628,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/5f66cc9f59b8efaa942155a3d5a30599bf6640dd/sponge-mixin-0.17.4+mixin.0.8.7.jar",
+        "sha256": "1f0ae44db7295f8626f33b1dc0ad7f043d8954a8d6847247875fcc5dfcecc934",
+        "bytes": 1539080,
+        "nested": []
+      },
+      {
+        "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/net.fabricmc/fabric-loader/0.19.5/ff9e65cffca4a67f31523e1807fe0855940fcbfa/fabric-loader-0.19.5.jar",
+        "sha256": "93044e4dd46de5d8136701292f05e868da096d2c9fddb4793e4fdbcc63efc695",
+        "bytes": 1984980,
+        "nested": [
+          {
+            "entry": "META-INF/jars/mixinextras-fabric-0.5.5.jar",
+            "sha256": "5da883dc4bfb16e4ceca3f16d8c4ad937bdfb1ce337ed5ba15472d4d81dd6242",
+            "nested": []
+          }
+        ]
+      }
+    ]
+  },
+  "eula": {
+    "path": "/home/kgadberry/projects/minecraft-dev/rkc/mods/chopt/versions/26.3/run/eula.txt",
+    "sha256": "ee27072e4a23e088522f740ddaab0c7c4145c186969e90a86254faa3a5ec5ce6",
+    "bytes": 10
+  },
+  "seed": 260329,
+  "runLabel": "fawe-s7-suite",
+  "mods": [
+    [
+      "polymer",
+      "polymer"
+    ],
+    [
+      "fawe",
+      "fawe"
+    ],
+    [
+      "fawetest",
+      "fawetest"
+    ],
+    [
+      "fixture",
+      "fixture"
+    ],
+    [
+      "fabric",
+      "fabric"
+    ]
+  ],
+  "artifacts": {
+    "polymer": {
+      "path": "/home/kgadberry/projects/minecraft-dev/rkc/forks/polymer/.claude/worktrees/fawe-fast-editing-20261029-s7/build/libs/polymer-bundled-0.18.6-fawe-s7.1+26.3.jar",
+      "id": "polymer-bundled",
+      "version": "0.18.6-fawe-s7.1+26.3",
+      "sha256": "45df484e340d68332c1bbaff5d4eae42629703c161b5cea27e2277ca074aa7a5",
+      "nested": [
+        {
+          "entry": "META-INF/jars/polymer-autohost-0.18.6-fawe-s7.1+26.3.jar",
+          "id": "polymer-autohost",
+          "version": "0.18.6-fawe-s7.1+26.3",
+          "sha256": "26966e8f04f096e5dc8a41790a8a2a7eefd7adb9dca5ebec9a73cc5d55d5eaf5",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/polymer-blocks-0.18.6-fawe-s7.1+26.3.jar",
+          "id": "polymer-blocks",
+          "version": "0.18.6-fawe-s7.1+26.3",
+          "sha256": "c5917e2c01e5ae4389bfada1826a3445928658cbd38bc729b11f8d39bae5ef27",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/polymer-common-0.18.6-fawe-s7.1+26.3.jar",
+          "id": "polymer-common",
+          "version": "0.18.6-fawe-s7.1+26.3",
+          "sha256": "d55f954fd58301e353ddbc1424a8e3c3ad9191cd309b65c4309ef0c185d40261",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/polymer-core-0.18.6-fawe-s7.1+26.3.jar",
+          "id": "polymer-core",
+          "version": "0.18.6-fawe-s7.1+26.3",
+          "sha256": "ee049973e8c838ea39193953f90a5d8b4a04596f05f0ae8d75b25bad204b5ee4",
+          "nested": [
+            {
+              "entry": "META-INF/jars/polymer-networking-0.18.6-fawe-s7.1+26.3.jar",
+              "id": "polymer-networking",
+              "version": "0.18.6-fawe-s7.1+26.3",
+              "sha256": "293521a996d0422e158b384ea0fa9eb0ac13f1ea410e5f1900113531927e83cc",
+              "nested": [
+                {
+                  "entry": "META-INF/jars/polymer-common-0.18.6-fawe-s7.1+26.3.jar",
+                  "id": "polymer-common",
+                  "version": "0.18.6-fawe-s7.1+26.3",
+                  "sha256": "d55f954fd58301e353ddbc1424a8e3c3ad9191cd309b65c4309ef0c185d40261",
+                  "nested": []
+                }
+              ]
+            },
+            {
+              "entry": "META-INF/jars/polymer-reg-sync-manipulator-0.18.6-fawe-s7.1+26.3.jar",
+              "id": "polymer-registry-sync-manipulator",
+              "version": "0.18.6-fawe-s7.1+26.3",
+              "sha256": "6c8d8ba4c780b5a2cd9d6e9d5665d87973b1b3b4767a313d06438bb9267333e9",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "entry": "META-INF/jars/polymer-resource-pack-0.18.6-fawe-s7.1+26.3.jar",
+          "id": "polymer-resource-pack",
+          "version": "0.18.6-fawe-s7.1+26.3",
+          "sha256": "f37cd4a7818d35ba75cdf65fb482487785aca58067b6f1f91f47587ac98a0dc3",
+          "nested": [
+            {
+              "entry": "META-INF/jars/polymer-common-0.18.6-fawe-s7.1+26.3.jar",
+              "id": "polymer-common",
+              "version": "0.18.6-fawe-s7.1+26.3",
+              "sha256": "d55f954fd58301e353ddbc1424a8e3c3ad9191cd309b65c4309ef0c185d40261",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "entry": "META-INF/jars/polymer-resource-pack-extras-0.18.6-fawe-s7.1+26.3.jar",
+          "id": "polymer-resource-pack-extras",
+          "version": "0.18.6-fawe-s7.1+26.3",
+          "sha256": "0d90d0ab04af4d52ce9de7795a25ba41d1079a0828e244ae75c60ca4b9976275",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/polymer-sound-patcher-0.18.6-fawe-s7.1+26.3.jar",
+          "id": "polymer-sound-patcher",
+          "version": "0.18.6-fawe-s7.1+26.3",
+          "sha256": "29e2824211539c8eaf1fdfb96fc64c46426cfd811c3b9c2db61e2d43725fc610",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/polymer-virtual-entity-0.18.6-fawe-s7.1+26.3.jar",
+          "id": "polymer-virtual-entity",
+          "version": "0.18.6-fawe-s7.1+26.3",
+          "sha256": "7ce2e4c2d8b14444e7760d5e6658f41778e91d4223691c2b7d7521e003421f2b",
+          "nested": [
+            {
+              "entry": "META-INF/jars/polymer-common-0.18.6-fawe-s7.1+26.3.jar",
+              "id": "polymer-common",
+              "version": "0.18.6-fawe-s7.1+26.3",
+              "sha256": "d55f954fd58301e353ddbc1424a8e3c3ad9191cd309b65c4309ef0c185d40261",
+              "nested": []
+            }
+          ]
+        }
+      ]
+    },
+    "fawe": {
+      "path": "/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer/artifacts/fawe/f39bded5c/worldedit-fabric-mc26.3-2.16.2-SNAPSHOT-dist.jar",
+      "sha256": "53c2cd9653ec4d18e16f7e6614ba756ff4db0ed0b5cc9baf333f487655be2e36"
+    },
+    "fixture": {
+      "path": "/home/kgadberry/projects/minecraft-dev/rkc/forks/polymer/.claude/worktrees/fawe-fast-editing-20261029-s7/build/libs/polymer-bundled-0.18.6-fawe-s7.1+26.3-bulk-test.jar",
+      "id": "polymer-bulk-test",
+      "version": "1.0.0",
+      "sha256": "2f6bb1d5d75061c6170fdfead2f4500666635c43c830480e4b61666ba78ae95d",
+      "nested": []
+    },
+    "native": {
+      "path": "/home/kgadberry/projects/minecraft-dev/rkc/forks/polymer/.claude/worktrees/fawe-fast-editing-20261029-s7/build/libs/polymer-bundled-0.18.6-fawe-s7.1+26.3-bulk-native.jar",
+      "id": "polymer-bulk-native-probe",
+      "version": "1.0.0",
+      "sha256": "23f2d29ee56e19e7f6b1b89778ac8847c582090a4cfc290806a23b3b7e097ffd",
+      "nested": []
+    },
+    "fabric": {
+      "path": "/home/kgadberry/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api/0.162.0+26.3/273cd2dcbd92d1559edcc91c9f23fee47f6ff93f/fabric-api-0.162.0+26.3.jar",
+      "id": "fabric-api",
+      "version": "0.162.0+26.3",
+      "sha256": "8626c189b702f466800b1c8ddac6203cf8a1e0bdaee75a5f9a33b18c2baa81b1",
+      "nested": [
+        {
+          "entry": "META-INF/jars/fabric-advancement-api-v1-1.0.0+38c7a2d55d.jar",
+          "id": "fabric-advancement-api-v1",
+          "version": "1.0.0+38c7a2d55d",
+          "sha256": "4e58d2f35b8b349949691b123033ba7158a921d351cfbe0d1376c4b2b4c90c15",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-api-base-2.0.6+fcdff87f5d.jar",
+          "id": "fabric-api-base",
+          "version": "2.0.6+fcdff87f5d",
+          "sha256": "e3b64039e8f261cc24a5013cb8b442cf368f08afa28d01ecdf97f3ccdeb7b63c",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-api-lookup-api-v1-2.0.24+3434d6d95d.jar",
+          "id": "fabric-api-lookup-api-v1",
+          "version": "2.0.24+3434d6d95d",
+          "sha256": "0ec468396a47cd8ba892294b2c230d4ce31558b6bb9653ff4d886f699f340e67",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-biome-api-v1-20.1.0+c6aa69a85d.jar",
+          "id": "fabric-biome-api-v1",
+          "version": "20.1.0+c6aa69a85d",
+          "sha256": "64bb6654ff4ad498f792766b343b280bb811d3fa6a6fc7d5812405217aba519e",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-block-api-v1-3.1.0+0ae6f9115d.jar",
+          "id": "fabric-block-api-v1",
+          "version": "3.1.0+0ae6f9115d",
+          "sha256": "0a9d70f750662a5417d2cbab5835173671a155478ae68a8b7875443a8b26e5de",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-block-getter-api-v2-2.0.9+3434d6d95d.jar",
+          "id": "fabric-block-getter-api-v2",
+          "version": "2.0.9+3434d6d95d",
+          "sha256": "6ee8e9e475874df839974c3f80807aaaf845cd833b027500519ad4ce551d332d",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-command-api-v2-3.1.2+fcdff87f5d.jar",
+          "id": "fabric-command-api-v2",
+          "version": "3.1.2+fcdff87f5d",
+          "sha256": "58072787b5b5d171a7e65b1eb7a9c006bd48b940e12c870d7b23e0d5173cf2c9",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-content-registries-v0-15.0.4+74ed1ea55d.jar",
+          "id": "fabric-content-registries-v0",
+          "version": "15.0.4+74ed1ea55d",
+          "sha256": "f25c676005d542fe8d0ea742a2eb98cba964218d774f6e17e0ae82ad0ce87889",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-convention-tags-v2-4.10.3+6b5b47fd5d.jar",
+          "id": "fabric-convention-tags-v2",
+          "version": "4.10.3+6b5b47fd5d",
+          "sha256": "2ddeb51ad366da4225de9e9f113030ed55d7527c08c25950172d8a246a6c2fda",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-crash-report-info-v1-1.0.7+fcdff87f5d.jar",
+          "id": "fabric-crash-report-info-v1",
+          "version": "1.0.7+fcdff87f5d",
+          "sha256": "81a9a1db48de260919e4220d0c2cf6362083475ebd803f14e341516d42a26d5a",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-creative-tab-api-v1-5.0.21+fcdff87f5d.jar",
+          "id": "fabric-creative-tab-api-v1",
+          "version": "5.0.21+fcdff87f5d",
+          "sha256": "b865c563ee0b02e5bf5b40c29e57c6b6533c6f6f56e97fdbcb004eadca3be9db",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-data-attachment-api-v1-2.2.31+b9b88df45d.jar",
+          "id": "fabric-data-attachment-api-v1",
+          "version": "2.2.31+b9b88df45d",
+          "sha256": "722f3a092f668ae7bc5fee1ae6337f72eca0cef7c14bf3daba5218499bdbcd69",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-data-generation-api-v1-27.3.0+5be2453c5d.jar",
+          "id": "fabric-data-generation-api-v1",
+          "version": "27.3.0+5be2453c5d",
+          "sha256": "fc431fedf521f4ebcb3f28655fb9006cb5feba348ac2891bb116011ff86057a2",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-debug-api-v1-1.0.4+3434d6d95d.jar",
+          "id": "fabric-debug-api-v1",
+          "version": "1.0.4+3434d6d95d",
+          "sha256": "e9806c1b6a5d4aecb8029fac497d43766b2c9612df6b925cc9e9d994c28834ba",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-dimensions-v1-5.1.19+47f74c985d.jar",
+          "id": "fabric-dimensions-v1",
+          "version": "5.1.19+47f74c985d",
+          "sha256": "ced046d84afdc22fd85c2a6e7420099ca2c86156669b064ed9a5c4e98d81f7ae",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-entity-events-v1-6.0.4+3434d6d95d.jar",
+          "id": "fabric-entity-events-v1",
+          "version": "6.0.4+3434d6d95d",
+          "sha256": "67af73392b583a8ce56693a769cdc2c0ea16b7970d30a80c0216d58df45465d5",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-events-interaction-v0-5.3.7+b9b88df45d.jar",
+          "id": "fabric-events-interaction-v0",
+          "version": "5.3.7+b9b88df45d",
+          "sha256": "e507339676f4ae1a6468bdac128e077e6022a702aedeea07232573eacb20207f",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-game-rule-api-v1-4.0.10+3434d6d95d.jar",
+          "id": "fabric-game-rule-api-v1",
+          "version": "4.0.10+3434d6d95d",
+          "sha256": "5cbd6be7ed872b3aa2e10695ec8f0740c408de69caa264028623edc8be6e4961",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-item-api-v1-14.7.0+cf6bc2db5d.jar",
+          "id": "fabric-item-api-v1",
+          "version": "14.7.0+cf6bc2db5d",
+          "sha256": "5128bd7b303de8aef6dc03ee1ad39c2a8ba98320c251f3674787761222b99bf8",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-key-mapping-api-v1-2.0.8+3434d6d95d.jar",
+          "id": "fabric-key-mapping-api-v1",
+          "version": "2.0.8+3434d6d95d",
+          "sha256": "00dc27fe09cca1b1af6346be12a86df4e49d33717dfbe74af4efca5673eb6b7d",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-lifecycle-events-v1-4.1.9+ffef5f675d.jar",
+          "id": "fabric-lifecycle-events-v1",
+          "version": "4.1.9+ffef5f675d",
+          "sha256": "fc47f06fa9ce4145ad925164a6eccc436f7ff504cf7d1e766a15699b82cd3e74",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-loot-api-v3-4.0.8+4068fd645d.jar",
+          "id": "fabric-loot-api-v3",
+          "version": "4.0.8+4068fd645d",
+          "sha256": "ff225924d0569f113f25bb4c51c9e8ceb2b73ed6198499c81b862d4186fb719f",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-menu-api-v1-2.0.28+ed66f0a35d.jar",
+          "id": "fabric-menu-api-v1",
+          "version": "2.0.28+ed66f0a35d",
+          "sha256": "ca22f06ef29de5d45ae930d6d84da39045321df62005d1c6e124e077331a1d07",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-message-api-v1-7.0.10+3434d6d95d.jar",
+          "id": "fabric-message-api-v1",
+          "version": "7.0.10+3434d6d95d",
+          "sha256": "ab4e1143c20301463348612d1b440878ae2eacd60f66112ce187c6c4c841156d",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-model-loading-api-v1-8.0.35+fcdff87f5d.jar",
+          "id": "fabric-model-loading-api-v1",
+          "version": "8.0.35+fcdff87f5d",
+          "sha256": "1479d2a6fc9c44c0038311ad64a51dd01d2a9509547501576ab68eec2885464c",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-networking-api-v1-6.3.9+b9b88df45d.jar",
+          "id": "fabric-networking-api-v1",
+          "version": "6.3.9+b9b88df45d",
+          "sha256": "bd9df58c724f7b476d930814665f5f3ac3849d8442293fbdf54197b8c718b478",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-object-builder-api-v1-24.1.10+3434d6d95d.jar",
+          "id": "fabric-object-builder-api-v1",
+          "version": "24.1.10+3434d6d95d",
+          "sha256": "2807750229fa894ea8164d6573952600cb7c8040a05ea8a540ff81a566c2366d",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-particles-v1-5.0.25+3434d6d95d.jar",
+          "id": "fabric-particles-v1",
+          "version": "5.0.25+3434d6d95d",
+          "sha256": "9b1e98a48b6ee647ba66fcdf23cc6280b32b2e2d27c22d44f7fee75cee4fcc75",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-permission-api-v1-1.0.8+fcdff87f5d.jar",
+          "id": "fabric-permission-api-v1",
+          "version": "1.0.8+fcdff87f5d",
+          "sha256": "d8e13a6fe81674be65163bbee6422892562d0d6265275f6c0e280b0c7385493a",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-recipe-api-v1-10.0.9+b9b88df45d.jar",
+          "id": "fabric-recipe-api-v1",
+          "version": "10.0.9+b9b88df45d",
+          "sha256": "dbce796a60c770f24b1ceffbca038a7d9871073e78fda6886d15c94c9d999ec5",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-registry-sync-v0-8.0.2+1ca9f6365d.jar",
+          "id": "fabric-registry-sync-v0",
+          "version": "8.0.2+1ca9f6365d",
+          "sha256": "ad2e7ab538ba920561572f09b8cef4264ac6af8aa4a703a3b39c242fdbbd37f1",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-renderer-api-v1-17.0.15+79385d0b5d.jar",
+          "id": "fabric-renderer-api-v1",
+          "version": "17.0.15+79385d0b5d",
+          "sha256": "412f1e3ea00f5af9babd52ebd388081f9f380c84b71935ff441f41936caed860",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-renderer-indigo-9.1.23+b9d63e335d.jar",
+          "id": "fabric-renderer-indigo",
+          "version": "9.1.23+b9d63e335d",
+          "sha256": "f46066891737dc270ed9892cb514d92d72a8012c71f4f27cbb20167aad512776",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-rendering-fluids-v1-6.0.6+3434d6d95d.jar",
+          "id": "fabric-rendering-fluids-v1",
+          "version": "6.0.6+3434d6d95d",
+          "sha256": "35b2f33dd1db506a8d6eda598e8f263a773a418e8453d3c18986cb4136536165",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-rendering-v1-27.0.14+901a437c5d.jar",
+          "id": "fabric-rendering-v1",
+          "version": "27.0.14+901a437c5d",
+          "sha256": "0dab025d36a81dee8d4c6d0f785d3e41765a7e939a4e594f146a6749ede91d6e",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-resource-conditions-api-v1-6.2.0+0d124ae85d.jar",
+          "id": "fabric-resource-conditions-api-v1",
+          "version": "6.2.0+0d124ae85d",
+          "sha256": "a1b65f27ac0a4697d15c9c52c2fd71a49629e2e6f0b9e46b33588139c27686ab",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-resource-loader-v0-3.3.26+4fc5413f5d.jar",
+          "id": "fabric-resource-loader-v0",
+          "version": "3.3.26+4fc5413f5d",
+          "sha256": "a3b0cb0cb626b19e6d03422916554c133cca5c9db091b237f7513e86f429c7e0",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-resource-loader-v1-3.0.4+ba0d6c0d5d.jar",
+          "id": "fabric-resource-loader-v1",
+          "version": "3.0.4+ba0d6c0d5d",
+          "sha256": "b62fa7d0bf67982ab1f6feafc88899e05a877a5215bf3d91e0b1b51c46ec2f89",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-screen-api-v1-5.2.4+48607d035d.jar",
+          "id": "fabric-screen-api-v1",
+          "version": "5.2.4+48607d035d",
+          "sha256": "2d940d1633d86a6cbe5efb559becde9d17fa6aedb2311add7cda1aa02769665a",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-serialization-api-v1-2.0.7+74ed1ea55d.jar",
+          "id": "fabric-serialization-api-v1",
+          "version": "2.0.7+74ed1ea55d",
+          "sha256": "0af4f059a581626bbe5680c9f3f84aeb6d603d9ee654714bfbc32e31e9a3a693",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-sound-api-v1-2.0.7+3434d6d95d.jar",
+          "id": "fabric-sound-api-v1",
+          "version": "2.0.7+3434d6d95d",
+          "sha256": "1a5ed88972366eb2f68df816d9c907686274649407e77100d92fd0cdf5c989b6",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-tag-api-v1-2.1.10+fcdff87f5d.jar",
+          "id": "fabric-tag-api-v1",
+          "version": "2.1.10+fcdff87f5d",
+          "sha256": "472e3a97e3b11c72ac8fc54b425f8e7130b861fa8b8e0b64a66ab6833353056a",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-transfer-api-v1-8.0.25+fcdff87f5d.jar",
+          "id": "fabric-transfer-api-v1",
+          "version": "8.0.25+fcdff87f5d",
+          "sha256": "f7d81e91f0f326dff6a393738b623a60bbe0afae86dc6c70431e103fa97edbd6",
+          "nested": []
+        },
+        {
+          "entry": "META-INF/jars/fabric-transitive-access-wideners-v1-8.1.16+52268a0e5d.jar",
+          "id": "fabric-transitive-access-wideners-v1",
+          "version": "8.1.16+52268a0e5d",
+          "sha256": "71ea7cdf8b94cde75d3f6ddd0ab66370e3b1e40dc05558338df929ca514c918b",
+          "nested": []
+        }
+      ]
+    },
+    "fawetest": {
+      "path": "/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/polymer/handoff/s7-polymer/artifacts/fawe/f39bded5c/worldedit-fabric-mc26.3-2.16.2-SNAPSHOT-testmod.jar",
+      "sha256": "2010dbc97b1208ef4ef5a009e47704fe66543cfcfd84d8b1d2503fa69b7f9b29"
+    },
+    "s7probe": {
+      "path": "/home/kgadberry/projects/minecraft-dev/rkc/forks/polymer/.claude/worktrees/fawe-fast-editing-20261029-s7/build/libs/polymer-bundled-0.18.6-fawe-s7.1+26.3-bulk-s7.jar",
+      "sha256": "46e400b56b0fccd9ad0055212126ffe0b1310629d71ed829da7c3e2c12694f84"
+    }
+  }
+}
