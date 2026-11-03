@@ -5,6 +5,8 @@
       "path": "/home/kgadberry/.gradle/caches/fabric-loom/26.1.2/mojang_minecraft_info.json",
       "sha256": "af1a791f5bcb08018b497b8718048f376112e495a5ddeef6d4e320a60278c852"
     },
+    "dataVersion": 4790,
+    "protocol": 775,
     "client": {
       "path": "/home/kgadberry/.gradle/caches/fabric-loom/26.1.2/minecraft-client.jar",
       "sha256": "b1b3158572666445eff01e82fad8c7de2e4953db6d354f311730d77a8359d0b0",
@@ -331,6 +333,8 @@
       "path": "/home/kgadberry/.gradle/caches/fabric-loom/26.2/mojang_minecraft_info.json",
       "sha256": "267d4b17134667235223525d3151b8126b066a3347c372d7a0d2474a9f0970f4"
     },
+    "dataVersion": 4903,
+    "protocol": 776,
     "client": {
       "path": "/home/kgadberry/.gradle/caches/fabric-loom/26.2/minecraft-client.jar",
       "sha256": "40896ee9f1e2bec3c934daac7e93d41e9e3d9c2f8ae0ca366d52ffbfd1afa290",
