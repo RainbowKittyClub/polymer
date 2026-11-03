@@ -21,7 +21,10 @@ manifest['artifacts']['fawetest'] = pin(sys.argv[2])
 manifest['artifacts']['s7probe'] = pin(ROOT / 'build/libs/polymer-bundled-0.18.6-fawe-s7.1+26.3-bulk-s7.jar')
 # Older watchers: clients from pin-clients.py, probes from build-older.js, server-side ViaFabric.
 manifest['olderClients'] = json.loads((ROOT / 'test/bulk/older-clients.json').read_text())
-for version in manifest['olderClients']:
+for version, entry in manifest['olderClients'].items():
+    missing = [key for key in ('dataVersion', 'protocol', 'client', 'libraries', 'assetIndex') if not entry.get(key)]
+    if missing:
+        sys.exit(f'older-clients.json {version} lacks {missing}; rerun pin-clients.py')
     manifest['artifacts'][f'native-{version}'] = pin(ROOT / f'build/libs/polymer-bulk-native-{version}.jar')
     manifest['artifacts'][f's7probe-{version}'] = pin(ROOT / f'build/libs/polymer-bulk-s7-{version}.jar')
 VIA = Path('/mnt/WORKSPACE/scratchpad/fawe-s7-evidence/client-inputs/via')
