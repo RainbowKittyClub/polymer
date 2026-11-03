@@ -22,10 +22,16 @@ const evidence = process.env.POLYMER_S7_EVIDENCE || '/mnt/WORKSPACE/scratchpad/f
 const LAMP = 'minecraft:redstone_lamp[lit=true]'
 const CELLS = [[3200, 80, 3200, 'oak'], [3202, 80, 3200, 'birch'], [3201, 80, 3200, 'lamp']]
 
-// `extra` lets other suites add client mods and JVM properties; `dir` names a fresh game dir per join.
+// `extra` lets other suites add client mods and JVM properties; `dir` names a fresh game dir per join;
+// `version` picks a pinned older client (manifest.olderClients) and `pack` overrides the pack choice.
 async function client (rig, port, name, extra = {}) {
   if (!process.env.TMPDIR) throw new Error('TMPDIR required')
   const label = extra.dir || name
+  const older = extra.version ? rig.manifest.olderClients[extra.version] : null
+  if (extra.version && !older) throw new Error(`No pinned client ${extra.version}`)
+  const cp = older ? [verify(older.client), ...older.libraries.map(verify), ...rig.manifest.loader.libraries.map(verify)].join(path.delimiter)
+    : classpath(rig.manifest, 'client')
+  if (older) verify(older.assetIndex)
   const temp = fs.mkdtempSync(path.join(process.env.TMPDIR, 'polymer-native-'))
   fs.chmodSync(temp, 0o700); rig.tempDirs.push(temp)
   const auth = path.join(temp, 'Xauthority')
@@ -39,21 +45,21 @@ async function client (rig, port, name, extra = {}) {
   await rig.wait('private display', () => lease.ready(), 15000, [display])
   const dir = path.join(rig.root, label)
   fs.mkdirSync(path.join(dir, 'mods'), { recursive: true })
-  fs.copyFileSync(verify(rig.manifest.artifacts.native), path.join(dir, 'mods/probe.jar'))
+  fs.copyFileSync(verify(rig.manifest.artifacts[older ? `native-${extra.version}` : 'native']), path.join(dir, 'mods/probe.jar'))
   for (const [file, key] of extra.mods || []) {
     fs.copyFileSync(verify(rig.manifest.artifacts[key]), path.join(dir, `mods/${file}.jar`))
   }
-  fs.writeFileSync(path.join(dir, 'options.txt'), 'version:5023\nonboardAccessibility:false\nstartedCleanly:true\npauseOnLostFocus:false\nenableVsync:false\nmaxFps:30\nrenderDistance:3\nsimulationDistance:5\nnarrator:0\n')
+  fs.writeFileSync(path.join(dir, 'options.txt'), `version:${older ? older.dataVersion : 5023}\nonboardAccessibility:false\nstartedCleanly:true\npauseOnLostFocus:false\nenableVsync:false\nmaxFps:30\nrenderDistance:3\nsimulationDistance:5\nnarrator:0\n`)
   const env = { ...process.env, DISPLAY: `:${lease.number}`, XAUTHORITY: auth, XDG_RUNTIME_DIR: temp,
     SDL_VIDEO_DRIVER: 'x11', LIBGL_ALWAYS_SOFTWARE: '1', ALSOFT_DRIVERS: 'null', VK_LOADER_LAYERS_DISABLE: '~implicit~' }
   for (const key of ['WAYLAND_DISPLAY', 'DBUS_SESSION_BUS_ADDRESS', 'JAVA_TOOL_OPTIONS', '_JAVA_OPTIONS']) delete env[key]
   const request = path.join(dir, 'request.json'), events = path.join(dir, 'events.jsonl')
-  const entry = rig.spawn(label, 'java', ['-Xmx3G', ...(extra.jvm || []), `-Dpolymer.bulk.pack=${name === 'polymertwo'}`, `-Dclaude.scratch=fawe-${rig.token}`,
+  const entry = rig.spawn(label, 'java', ['-Xmx3G', ...(extra.jvm || []), `-Dpolymer.bulk.pack=${extra.pack ?? name === 'polymertwo'}`, `-Dclaude.scratch=fawe-${rig.token}`,
     '--enable-native-access=ALL-UNNAMED', '--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED', '-XX:StackShadowPages=32',
-    `-Dpolymer.bulk.request=${request}`, `-Dpolymer.bulk.events=${events}`, `-Dpolymer.bulk.packets=${path.join(dir, 'packets.jsonl')}`, '-cp', classpath(rig.manifest, 'client'),
+    `-Dpolymer.bulk.request=${request}`, `-Dpolymer.bulk.events=${events}`, `-Dpolymer.bulk.packets=${path.join(dir, 'packets.jsonl')}`, '-cp', cp,
     'net.fabricmc.loader.impl.launch.knot.KnotClient', '--username', name, '--uuid', offlineUuid(name), '--accessToken', '0',
-    '--offlineDeveloperMode', '--graphicsBackend', 'OPENGL', '--version', '26.3', '--versionType', 'release', '--gameDir', dir,
-    '--assetsDir', rig.manifest.minecraft.assetsRoot, '--assetIndex', rig.manifest.minecraft.assetIndexName,
+    '--offlineDeveloperMode', '--graphicsBackend', 'OPENGL', '--version', extra.version || '26.3', '--versionType', 'release', '--gameDir', dir,
+    '--assetsDir', (older || rig.manifest.minecraft).assetsRoot, '--assetIndex', (older || rig.manifest.minecraft).assetIndexName,
     '--width', '854', '--height', '480', '--quickPlayMultiplayer', `127.0.0.1:${port}`], { cwd: dir, env })
   const read = () => fs.existsSync(events) ? fs.readFileSync(events, 'utf8').split('\n').filter(Boolean).map(JSON.parse) : []
   await rig.wait('native world', () => read().some(event => event.state === 'world'), 180000, [entry, display])
