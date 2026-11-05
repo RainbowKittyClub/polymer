@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 @ApiStatus.Internal
 public interface PolymerIdMapper<T> {
-    void polymer$setChecker(Predicate<T> polymerChecker, Predicate<T> serverChecker, Function<T, String> name);
+    void polymer$setChecker(Predicate<T> polymerChecker, Predicate<T> serverChecker, Predicate<T> vanillaChecker, Function<T, String> name);
     Collection<T> polymer$getPolymerEntries();
     int polymer$getOffset();
     void polymer$clear();

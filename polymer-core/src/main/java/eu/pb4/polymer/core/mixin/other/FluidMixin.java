@@ -3,6 +3,7 @@ package eu.pb4.polymer.core.mixin.other;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
+import eu.pb4.polymer.rsm.impl.RegSyncImplUtil;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,6 +25,7 @@ public class FluidMixin {
         ((PolymerIdMapper<FluidState>) FLUID_STATE_REGISTRY).polymer$setChecker(
                 x -> PolymerSyncedObject.getSyncedObject(BuiltInRegistries.FLUID, x.getType()) != null,
                 x -> PolymerImplUtils.isServerSideSyncableEntry((Registry<Object>) (Object) BuiltInRegistries.FLUID, x.getType()),
+                x -> RegSyncImplUtil.isVanillaId(BuiltInRegistries.FLUID.getKey(x.getType())),
                 x -> "(Fluid) " + BuiltInRegistries.FLUID.getKey(x.getType()));
     }
 }

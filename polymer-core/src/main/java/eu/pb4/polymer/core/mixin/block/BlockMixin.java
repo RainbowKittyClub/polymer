@@ -4,6 +4,7 @@ import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.utils.PolymerSyncedObject;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import eu.pb4.polymer.core.impl.interfaces.PolymerIdMapper;
+import eu.pb4.polymer.rsm.impl.RegSyncImplUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.Registry;
@@ -34,6 +35,7 @@ public class BlockMixin {
         ((PolymerIdMapper<BlockState>) BLOCK_STATE_REGISTRY).polymer$setChecker(
                 x -> PolymerSyncedObject.getSyncedObject(BuiltInRegistries.BLOCK, x.getBlock()) != null,
                 x -> PolymerImplUtils.isServerSideSyncableEntry((Registry<Object>) (Object) BuiltInRegistries.BLOCK, x.getBlock()),
+                x -> RegSyncImplUtil.isVanillaId(BuiltInRegistries.BLOCK.getKey(x.getBlock())),
                 x -> "(Block) " + BuiltInRegistries.BLOCK.getKey(x.getBlock())
         );
     }

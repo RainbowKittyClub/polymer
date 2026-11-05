@@ -57,7 +57,8 @@ public abstract class MappedRegistryMixin<T> implements RegistrySyncExtension<T>
         var polymer = new ArrayList<Holder.Reference<T>>();
 
         for (var entry : this.byId) {
-            if (this.polymer_registry_sync$isServerEntry(entry.value())) {
+            // A vanilla entry keeps its vanilla id, even when marked server-only (an overlay on it).
+            if (this.polymer_registry_sync$isServerEntry(entry.value()) && !RegSyncImplUtil.isVanillaId(entry.key().identifier())) {
                 polymer.add(entry);
             } else {
                 vanilla.add(entry);

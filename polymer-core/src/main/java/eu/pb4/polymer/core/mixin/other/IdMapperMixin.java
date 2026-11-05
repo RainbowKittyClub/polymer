@@ -51,6 +51,8 @@ public abstract class IdMapperMixin<T> implements PolymerIdMapper<T> {
     @Unique
     private Predicate<T> polymer$serverEntryChecker;
     @Unique
+    private Predicate<T> polymer$vanillaEntryChecker;
+    @Unique
     private boolean polymer$isPolymerAware;
     @Unique
     private Function<T, String> polymer$nameCreator;
@@ -78,7 +80,8 @@ public abstract class IdMapperMixin<T> implements PolymerIdMapper<T> {
         for (var value : this.idToT) {
             var isPolymerObj = this.polymer$polymerEntryChecker.test(value);
 
-            if (isPolymerObj) {
+            // Vanilla clients have every vanilla entry (an overlay on one included) at its vanilla id.
+            if (isPolymerObj && !this.polymer$vanillaEntryChecker.test(value)) {
                 polymer.add(value);
             } else {
                 untouched.add(value);
@@ -102,8 +105,8 @@ public abstract class IdMapperMixin<T> implements PolymerIdMapper<T> {
         }
 
 
-        this.polymer$offset = this.idToT.size() - this.polymer$states.size();
-        this.polymer$nonPolymerBitCount = Mth.ceillog2(this.idToT.size() - this.polymer$states.size());
+        this.polymer$offset = this.idToT.size() - polymer.size();
+        this.polymer$nonPolymerBitCount = Mth.ceillog2(this.idToT.size() - polymer.size());
         this.polymer$vanillaBitCount = Mth.ceillog2(this.polymer$vanillaEntryCount);
         this.polymer$requireReorder = false;
     }
@@ -119,9 +122,10 @@ public abstract class IdMapperMixin<T> implements PolymerIdMapper<T> {
     }
 
     @Override
-    public void polymer$setChecker(Predicate<T> polymerChecker, Predicate<T> serverChecker,  Function<T, String> namer) {
+    public void polymer$setChecker(Predicate<T> polymerChecker, Predicate<T> serverChecker, Predicate<T> vanillaChecker, Function<T, String> namer) {
         this.polymer$polymerEntryChecker = polymerChecker;
         this.polymer$serverEntryChecker = serverChecker;
+        this.polymer$vanillaEntryChecker = vanillaChecker;
         this.polymer$isPolymerAware = polymerChecker != null;
         this.polymer$nameCreator = namer;
     }
