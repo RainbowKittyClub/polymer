@@ -5,6 +5,11 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "ArrayBackedEventAccessor",
+    "BulkBlockEntityMixin",
+    "BulkLevelChunkMixin",
+    "BulkLevelChunkSectionMixin",
+    "BulkPlayerChunkSenderAccessor",
+    "BulkPlayerChunkSenderMixin",
     "CommandsMixin",
     "ConnectionMixin",
     "LevelAccessor",

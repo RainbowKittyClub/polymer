@@ -14,6 +14,8 @@ import org.jspecify.annotations.Nullable;
 
 public final class BlockBoundAttachment extends ChunkAttachment implements BlockAwareAttachment {
     public static final UpdateType BLOCK_STATE_UPDATE = BlockAwareAttachment.BLOCK_STATE_UPDATE;
+    /** Final block-entity data changed without necessarily changing the block state. */
+    public static final UpdateType BLOCK_ENTITY_UPDATE = UpdateType.of("block_entity_update");
 
     private final BlockPos blockPos;
     private BlockState blockState;
@@ -78,8 +80,14 @@ public final class BlockBoundAttachment extends ChunkAttachment implements Block
 
     @ApiStatus.Internal
     public void setBlockState(BlockState blockState) {
+        this.setBlockState(blockState, true);
+    }
+
+    /** Internal bulk transition; notification follows recipient-aware publication. */
+    @ApiStatus.Internal
+    public void setBlockState(BlockState blockState, boolean notify) {
         this.blockState = blockState;
-        if (this == this.holder().getAttachment()) {
+        if (notify && this == this.holder().getAttachment()) {
             this.holder().notifyUpdate(BLOCK_STATE_UPDATE);
         }
     }

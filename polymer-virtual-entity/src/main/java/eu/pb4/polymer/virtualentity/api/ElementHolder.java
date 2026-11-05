@@ -1,5 +1,8 @@
 package eu.pb4.polymer.virtualentity.api;
 
+import eu.pb4.polymer.common.impl.BulkChunkAccess;
+import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
+import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
@@ -88,6 +91,13 @@ public class ElementHolder {
     }
 
     public boolean startWatching(ServerGamePacketListenerImpl player) {
+        if (this.attachment instanceof ChunkAttachment chunkAttachment) {
+            var access = (BulkChunkAccess) chunkAttachment.getChunk();
+            if (access.polymer$bulkQuarantined()
+                    || (access.polymer$bulkToken() != null && access.polymer$bulkToken().defersWatchers())) {
+                return false;
+            }
+        }
         if (this.players.contains(player)) {
             return false;
         }
@@ -139,6 +149,14 @@ public class ElementHolder {
     }
 
     public void tick() {
+        if (this.attachment instanceof BlockBoundAttachment bound) {
+            var access = (BulkChunkAccess) bound.getChunk();
+            var token = access.polymer$bulkToken();
+            if (access.polymer$bulkQuarantined()
+                    || (token != null && token.defersPosition(bound.getBlockPos()))) {
+                return;
+            }
+        }
         if (this.attachment == null) {
             return;
         }

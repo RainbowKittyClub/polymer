@@ -21,6 +21,7 @@
   "environment": "*",
   "accessWidener": "polymer-core.accesswidener",
   "entrypoints": {
+    "polymer:bulk_edits": ["eu.pb4.polymer.core.impl.CoreBulkEdits"],
     "main": [
       "eu.pb4.polymer.core.impl.PolymerMod"
     ],
