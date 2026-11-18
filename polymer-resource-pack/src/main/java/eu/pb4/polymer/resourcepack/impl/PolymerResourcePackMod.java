@@ -63,6 +63,8 @@ public class PolymerResourcePackMod implements ModInitializer, ClientModInitiali
             if (require != null && require.getType() == CustomValue.CvType.BOOLEAN && require.getAsBoolean()) {
                 PolymerResourcePackUtils.markAsRequired();
             }
+
+            NoPackAdvancementBackgrounds.readFrom(mod.getMetadata());
         }
 
         var creator = PolymerResourcePackUtils.getInstance();

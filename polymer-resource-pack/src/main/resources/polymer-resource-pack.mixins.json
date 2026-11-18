@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "eu.pb4.polymer.resourcepack.mixin.PolymerResourcePackMixinConfigPlugin",
   "mixins": [
+    "DisplayInfoMixin",
     "accessors.IdentifierPatternAccessor",
     "accessors.ResourceFilterSectionAccessor",
     "accessors.BuiltInPackSourceAccessor"
